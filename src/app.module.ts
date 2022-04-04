@@ -1,6 +1,9 @@
-import { Module } from '@nestjs/common'
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import * as Joi from 'joi'
+import * as ormconfig from './typeorm.config'
+import { TypeOrmModule } from '@nestjs/typeorm'
+import { AppLoggerMiddleware } from './common/middlewares/logger.middleware'
 
 @Module({
   imports: [
@@ -15,10 +18,20 @@ import * as Joi from 'joi'
           .valid('development', 'production', 'test', 'provision')
           .default('development'),
         PORT: Joi.number().required(),
+        POSTGRES_HOST: Joi.string().required(),
+        POSTGRES_PORT: Joi.number().required(),
+        DATABASE_USER: Joi.string().required(),
+        DATABASE_PASSWORD: Joi.string().required(),
+        DATABASE_NAME: Joi.string().required(),
       }),
     }),
+    TypeOrmModule.forRoot(ormconfig),
   ],
   controllers: [],
   providers: [],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer): void {
+    consumer.apply(AppLoggerMiddleware).forRoutes('*')
+  }
+}
