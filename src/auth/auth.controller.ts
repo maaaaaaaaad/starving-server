@@ -1,8 +1,11 @@
-import { Body, Controller, Post } from '@nestjs/common'
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common'
 import { AuthService } from './auth.service'
 import { UserRegisterInputDto } from './dtos/user.register.dto'
-import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger'
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { UserLoginInputDto } from './dtos/user.login.dto'
+import { JwtAuthGuard } from './jwt/jwt-auth.guard'
+import { User } from '../common/decorators/user.decorator'
+import { UserEntity } from './entities/user.entity'
 
 @Controller('auth')
 @ApiTags('auth')
@@ -25,5 +28,15 @@ export class AuthController {
   @ApiBody({ type: UserLoginInputDto })
   async login(@Body() userLoginInputDto: UserLoginInputDto) {
     return await this.authService.login(userLoginInputDto)
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get()
+  @ApiOperation({
+    summary: 'Get current user data with using access-token',
+  })
+  @ApiBearerAuth('access-token')
+  async profile(@User() user: UserEntity) {
+    return user
   }
 }

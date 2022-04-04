@@ -81,7 +81,7 @@ export class AuthService {
         where: {
           email,
         },
-        select: ['email', 'password'],
+        select: ['email', 'password', 'pk'],
       })
       if (!user) {
         throw new UnauthorizedException('Not found this user')
@@ -102,5 +102,13 @@ export class AuthService {
     } catch (e) {
       throw new InternalServerErrorException(e.message)
     }
+  }
+
+  async findUserByPrimaryKey(pk: number): Promise<UserEntity> {
+    return await this.userEntity.findOne({
+      where: {
+        pk,
+      },
+    })
   }
 }

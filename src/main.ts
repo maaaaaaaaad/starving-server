@@ -12,6 +12,10 @@ async function bootstrap() {
   app.useGlobalInterceptors(new UndefinedInterceptor())
 
   const config = new DocumentBuilder()
+    .addBearerAuth(
+      { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
+      'access-token',
+    )
     .setTitle('The PRO')
     .setDescription('The PRO API description')
     .setVersion('1.0')
