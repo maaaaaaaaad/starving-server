@@ -4,7 +4,7 @@ import * as Joi from 'joi'
 import * as ormconfig from './typeorm.config'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { AppLoggerMiddleware } from './common/middlewares/logger.middleware'
-import { AuthModule } from './auth/auth.module';
+import { AuthModule } from './auth/auth.module'
 
 @Module({
   imports: [
@@ -24,6 +24,7 @@ import { AuthModule } from './auth/auth.module';
         DATABASE_USER: Joi.string().required(),
         DATABASE_PASSWORD: Joi.string().required(),
         DATABASE_NAME: Joi.string().required(),
+        JWT_SECRET_KEY: Joi.string().required(),
       }),
     }),
     TypeOrmModule.forRoot(ormconfig),
