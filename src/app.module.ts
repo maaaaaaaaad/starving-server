@@ -4,6 +4,7 @@ import * as Joi from 'joi'
 import * as ormconfig from './typeorm.config'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { AppLoggerMiddleware } from './common/middlewares/logger.middleware'
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { AppLoggerMiddleware } from './common/middlewares/logger.middleware'
       }),
     }),
     TypeOrmModule.forRoot(ormconfig),
+    AuthModule,
   ],
   controllers: [],
   providers: [],
