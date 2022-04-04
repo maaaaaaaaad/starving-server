@@ -1,10 +1,4 @@
-import {
-  HttpException,
-  HttpStatus,
-  Injectable,
-  InternalServerErrorException,
-  UnauthorizedException,
-} from '@nestjs/common'
+import { Injectable, InternalServerErrorException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { UserEntity } from './entities/user.entity'
 import { Repository } from 'typeorm'
@@ -65,9 +59,44 @@ export class AuthService {
             success: 'Success register user account',
           }
         }
-        throw new UnauthorizedException('Please you check email and nickname')
+        return {
+          access: false,
+          error: 'Please you check email and nickname',
+        }
       } else if (social) {
+        let payload: JwtPayloadType
         if (!(await this.checkEmailExist(email))) {
+          await this.userEntity.save(
+            this.userEntity.create({
+              email,
+              password,
+              nickname,
+              avatarImage: avatarImage ?? null,
+              social,
+            }),
+          )
+          const socialUser = await this.userEntity.findOne({
+            where: {
+              email,
+            },
+          })
+          payload = { email: socialUser.email, pk: socialUser.pk }
+          return {
+            access: true,
+            success: 'Success register social user',
+            token: this.jwtService.sign(payload),
+          }
+        }
+        const socialUser = await this.userEntity.findOne({
+          where: {
+            email,
+          },
+        })
+        payload = { email: socialUser.email, pk: socialUser.pk }
+        return {
+          access: true,
+          success: 'Success login social user',
+          token: this.jwtService.sign(payload),
         }
       }
     } catch (e) {
@@ -84,11 +113,18 @@ export class AuthService {
         select: ['email', 'password', 'pk'],
       })
       if (!user) {
-        throw new UnauthorizedException('Not found this user')
-      }
-      const confirmPassword = await user.confirmPassword(password)
-      if (!confirmPassword) {
-        throw new HttpException('No match password', HttpStatus.BAD_REQUEST)
+        return {
+          access: false,
+          error: 'Not found this user',
+        }
+      } else if (user) {
+        const confirmPassword = await user.confirmPassword(password)
+        if (!confirmPassword) {
+          return {
+            access: false,
+            error: 'No match password',
+          }
+        }
       }
       const payload: JwtPayloadType = {
         email: user.email,

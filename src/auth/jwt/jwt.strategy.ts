@@ -1,6 +1,6 @@
 import { ExtractJwt, Strategy } from 'passport-jwt'
 import { PassportStrategy } from '@nestjs/passport'
-import { Injectable, UnauthorizedException } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 
 import { JwtPayloadType } from './jwt.payload.type'
 import { AuthService } from '../auth.service'
@@ -18,7 +18,10 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   async validate(payload: JwtPayloadType) {
     const user = await this.authService.findUserByPrimaryKey(payload.pk)
     if (!user) {
-      throw new UnauthorizedException('Not found this user')
+      return {
+        access: false,
+        error: 'Not found this user',
+      }
     }
     return user
   }
