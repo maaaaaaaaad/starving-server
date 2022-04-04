@@ -13,11 +13,12 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>()
     const request = ctx.getRequest<Request>()
     const status = exception.getStatus()
+    const details = exception.getResponse()
 
     response.status(status).json({
-      statusCode: status,
-      timestamp: new Date().toISOString(),
+      timestamp: new Date().toLocaleString('ko-KR', { hour12: true }),
       path: request.url,
+      details: details ?? null,
     })
   }
 }

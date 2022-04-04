@@ -31,7 +31,7 @@ export class UserEntity extends CoreEntity {
   })
   email: string
 
-  @Column({ name: 'PASSWORD', nullable: false, unique: true })
+  @Column({ name: 'PASSWORD', nullable: false, unique: true, select: false })
   @IsString()
   @IsNotEmpty()
   @ApiProperty({
