@@ -16,8 +16,8 @@ async function bootstrap() {
       { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
       'access-token',
     )
-    .setTitle('The PRO')
-    .setDescription('The PRO API description')
+    .setTitle('STARVING')
+    .setDescription('STARVING API description')
     .setVersion('1.0')
     .build()
   const document = SwaggerModule.createDocument(app, config)

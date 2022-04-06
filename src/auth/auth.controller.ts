@@ -6,15 +6,35 @@ import { UserLoginInputDto } from './dtos/user.login.dto'
 import { JwtAuthGuard } from './jwt/jwt-auth.guard'
 import { User } from '../common/decorators/user.decorator'
 import { UserEntity } from './entities/user.entity'
+import { UserCheckEmailInputDto } from './dtos/user.check.email.dto'
+import { UserCheckNicknameInputDto } from './dtos/user.check.nickname.dto'
 
 @Controller('auth')
 @ApiTags('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @Post('check/email')
+  @ApiOperation({
+    summary: 'Check you input the email',
+  })
+  @ApiBody({ type: UserCheckEmailInputDto })
+  async checkEmailExist(@Body() email: UserCheckEmailInputDto) {
+    return await this.authService.checkEmailExist(email)
+  }
+
+  @Post('check/nickname')
+  @ApiOperation({
+    summary: 'Check you input the nickname',
+  })
+  @ApiBody({ type: UserCheckNicknameInputDto })
+  async checkNicknameExist(@Body() nickname: UserCheckNicknameInputDto) {
+    return await this.authService.checkNicknameExist(nickname)
+  }
+
   @Post('register')
   @ApiOperation({
-    summary: 'Register user account',
+    summary: 'Register user account 👈🏻 Social login here',
   })
   @ApiBody({ type: UserRegisterInputDto })
   async register(@Body() userRegisterInputDto: UserRegisterInputDto) {

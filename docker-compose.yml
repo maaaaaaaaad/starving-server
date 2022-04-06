@@ -1,0 +1,40 @@
+version: '3'
+services:
+  psql:
+    container_name: starving-dev-psql
+    build:
+      context: ./psql
+      dockerfile: Dockerfile
+    environment:
+      - POSTGRES_PASSWORD=12345
+    volumes:
+      - ./psql/pgdata:/var/lib/postgresql/data
+    ports:
+      - '5432:5432'
+
+  server-dev:
+    container_name: starving-dev-server
+    build:
+      context: ./
+      dockerfile: Dockerfile.dev
+    env_file:
+      - ./.development.env
+    ports:
+      - '8888:8000'
+    volumes:
+      - ./:/app/starving/server
+    depends_on:
+      - psql
+
+  server-prod:
+    container_name: starving-prod-server
+    image: maaaaaaaaad/starving-prod-server:0.1
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    env_file:
+      - ./.production.env
+    ports:
+      - '9999:9000'
+    depends_on:
+      - psql

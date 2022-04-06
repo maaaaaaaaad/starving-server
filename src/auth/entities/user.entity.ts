@@ -12,7 +12,6 @@ import { InternalServerErrorException } from '@nestjs/common'
 import { ApiProperty } from '@nestjs/swagger'
 
 export enum Social {
-  GOOGLE = 'GOOGLE',
   KAKAO = 'KAKAO',
   NAVER = 'NAVER',
 }
@@ -26,7 +25,7 @@ export class UserEntity extends CoreEntity {
     description: 'User email',
     nullable: false,
     required: true,
-    example: 'thepro@gmail.com',
+    example: 'starving@gmail.com',
     type: String,
   })
   email: string
@@ -62,7 +61,7 @@ export class UserEntity extends CoreEntity {
     description: 'User avatar image',
     required: false,
     nullable: true,
-    example: 'Avatar image url',
+    default: null,
     type: String,
   })
   avatarImage?: string

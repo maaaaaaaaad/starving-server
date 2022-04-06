@@ -6,6 +6,8 @@ import { UserRegisterInputDto } from './dtos/user.register.dto'
 import { UserLoginInputDto } from './dtos/user.login.dto'
 import { JwtService } from '@nestjs/jwt'
 import { JwtPayloadType } from './jwt/jwt.payload.type'
+import { UserCheckEmailInputDto } from './dtos/user.check.email.dto'
+import { UserCheckNicknameInputDto } from './dtos/user.check.nickname.dto'
 
 @Injectable()
 export class AuthService {
@@ -14,22 +16,40 @@ export class AuthService {
     private readonly userEntity: Repository<UserEntity>,
     private readonly jwtService: JwtService,
   ) {}
-  async checkEmailExist(email: string): Promise<boolean> {
+  async checkEmailExist({ email }: UserCheckEmailInputDto) {
     const emailExist = await this.userEntity.findOne({
       where: {
         email,
       },
     })
-    return !!emailExist
+    if (emailExist) {
+      return {
+        access: false,
+        message: 'Already to this email',
+      }
+    }
+    return {
+      access: true,
+      message: 'Available this email',
+    }
   }
 
-  async checkNicknameExist(nickname: string): Promise<boolean> {
+  async checkNicknameExist({ nickname }: UserCheckNicknameInputDto) {
     const nicknameExist = await this.userEntity.findOne({
       where: {
         nickname,
       },
     })
-    return !!nicknameExist
+    if (nicknameExist) {
+      return {
+        access: false,
+        message: 'Already to this nickname',
+      }
+    }
+    return {
+      access: true,
+      message: 'Available this nickname',
+    }
   }
 
   async register({
@@ -41,31 +61,49 @@ export class AuthService {
   }: UserRegisterInputDto) {
     try {
       if (!social) {
-        if (
-          !(await this.checkEmailExist(email)) &&
-          !(await this.checkNicknameExist(nickname))
-        ) {
-          await this.userEntity.save(
-            this.userEntity.create({
-              email,
-              password,
-              nickname,
-              avatarImage: avatarImage ?? null,
-              social: null,
-            }),
-          )
+        const userEmail = await this.userEntity.findOne({
+          where: {
+            email,
+          },
+        })
+        if (userEmail) {
           return {
-            access: true,
-            success: 'Success register user account',
+            access: false,
+            message: 'Already to this user email',
           }
         }
+        const userNickname = await this.userEntity.findOne({
+          where: {
+            nickname,
+          },
+        })
+        if (userNickname) {
+          return {
+            access: false,
+            message: 'Already to this user nickname',
+          }
+        }
+        await this.userEntity.save(
+          this.userEntity.create({
+            email,
+            password,
+            nickname,
+            avatarImage: avatarImage ?? null,
+            social: null,
+          }),
+        )
         return {
-          access: false,
-          error: 'Please you check email and nickname',
+          access: true,
+          success: 'Success register user account',
         }
       } else if (social) {
+        const user = await this.userEntity.findOne({
+          where: {
+            email,
+          },
+        })
         let payload: JwtPayloadType
-        if (!(await this.checkEmailExist(email))) {
+        if (!user) {
           await this.userEntity.save(
             this.userEntity.create({
               email,
