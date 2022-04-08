@@ -88,7 +88,7 @@ export class AuthService {
             email,
             password,
             nickname,
-            avatarImage: avatarImage ?? null,
+            avatarImage: avatarImage === '' ? null : avatarImage,
             social: null,
           }),
         )

@@ -1,7 +1,13 @@
 import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common'
 import { AuthService } from './auth.service'
 import { UserRegisterInputDto } from './dtos/user.register.dto'
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger'
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger'
 import { UserLoginInputDto } from './dtos/user.login.dto'
 import { JwtAuthGuard } from './jwt/jwt-auth.guard'
 import { User } from '../common/decorators/user.decorator'
@@ -15,6 +21,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('check/email')
+  @ApiConsumes('application/x-www-form-urlencoded')
   @ApiOperation({
     summary: 'Check you input the email',
   })
@@ -24,6 +31,7 @@ export class AuthController {
   }
 
   @Post('check/nickname')
+  @ApiConsumes('application/x-www-form-urlencoded')
   @ApiOperation({
     summary: 'Check you input the nickname',
   })
@@ -33,6 +41,7 @@ export class AuthController {
   }
 
   @Post('register')
+  @ApiConsumes('application/x-www-form-urlencoded')
   @ApiOperation({
     summary: 'Register user account 👈🏻 Social login here',
   })
@@ -42,6 +51,7 @@ export class AuthController {
   }
 
   @Post('login')
+  @ApiConsumes('application/x-www-form-urlencoded')
   @ApiOperation({
     summary: 'Login user account',
   })
@@ -52,6 +62,7 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard)
   @Get()
+  @ApiConsumes('application/x-www-form-urlencoded')
   @ApiOperation({
     summary: 'Get current user data with using access-token',
   })

@@ -1,6 +1,7 @@
 version: '3'
 services:
   psql:
+    restart: always
     container_name: starving-dev-psql
     build:
       context: ./psql
@@ -13,6 +14,7 @@ services:
       - '5432:5432'
 
   server-dev:
+    restart: always
     container_name: starving-dev-server
     build:
       context: ./
@@ -27,6 +29,7 @@ services:
       - psql
 
   server-prod:
+    restart: always
     container_name: starving-prod-server
     image: maaaaaaaaad/starving-prod-server:0.1
     build:
