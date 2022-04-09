@@ -185,4 +185,25 @@ export class AuthService {
       },
     })
   }
+
+  async avatarImageUpload(pk: number, location: string) {
+    const user = await this.userEntity.findOne({
+      where: {
+        pk,
+      },
+    })
+    if (!user) {
+      return {
+        access: false,
+        message: 'Not found this user',
+      }
+    }
+    user.avatarImage = location
+    await this.userEntity.save(user)
+    return {
+      access: true,
+      message: 'Success update avatar image',
+      user,
+    }
+  }
 }

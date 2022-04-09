@@ -22,7 +22,7 @@ services:
     env_file:
       - ./.development.env
     ports:
-      - '8888:8000'
+      - '8888:8888'
     volumes:
       - ./:/app/starving/server
     depends_on:
@@ -38,6 +38,6 @@ services:
     env_file:
       - ./.production.env
     ports:
-      - '9999:9000'
+      - '9999:9999'
     depends_on:
       - psql
