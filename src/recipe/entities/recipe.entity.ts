@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne } from 'typeorm'
+import { Column, Entity, ManyToOne, RelationId } from 'typeorm'
 import { CoreEntity } from '../../common/entities/core.entity'
 import { IsNotEmpty, IsNumber, IsString } from 'class-validator'
 import { ApiProperty } from '@nestjs/swagger'

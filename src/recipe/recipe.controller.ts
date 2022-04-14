@@ -26,6 +26,8 @@ import { User } from '../common/decorators/user.decorator'
 import { UserEntity } from '../auth/entities/user.entity'
 import { RecipeGetAllInputDto } from './dtos/recipe.get.all.dto'
 import { RecipeGetOneInputDto } from './dtos/recipe.get.one.dto'
+import { RecipeGetMyInputDto } from './dtos/recipe.get.my.dto'
+import { RecipeGetCategoryInputDto } from './dtos/recipe.get.category.dto'
 
 @Controller('recipe')
 @ApiTags('recipe')
@@ -60,7 +62,7 @@ export class RecipeController {
   }
 
   @Get('all')
-  @ApiOperation({ summary: 'Get all recipe' })
+  @ApiOperation({ summary: 'Get all recipes' })
   async getAll(@Query() recipeGetAllInputDto: RecipeGetAllInputDto) {
     return await this.recipeService.getAll(recipeGetAllInputDto)
   }
@@ -69,5 +71,24 @@ export class RecipeController {
   @ApiOperation({ summary: 'Get one recipe' })
   async getOne(@Query() recipeGetOneInputDto: RecipeGetOneInputDto) {
     return await this.recipeService.getOne(recipeGetOneInputDto)
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('access-token')
+  @Get('my')
+  @ApiOperation({ summary: 'Get my recipes' })
+  async getMy(
+    @User() owner: UserEntity,
+    @Query() recipeGetMyInputDto: RecipeGetMyInputDto,
+  ) {
+    return await this.recipeService.getMy(owner, recipeGetMyInputDto)
+  }
+
+  @Get('category')
+  @ApiOperation({ summary: 'Get recipes by category value' })
+  async getByCategory(
+    @Query() recipeGetCategoryInputDto: RecipeGetCategoryInputDto,
+  ) {
+    return await this.recipeService.getByCategory(recipeGetCategoryInputDto)
   }
 }

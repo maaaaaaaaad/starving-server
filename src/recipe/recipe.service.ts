@@ -7,6 +7,8 @@ import { CategoryEntity } from './entities/category.entity'
 import { UserEntity } from '../auth/entities/user.entity'
 import { RecipeGetAllInputDto } from './dtos/recipe.get.all.dto'
 import { RecipeGetOneInputDto } from './dtos/recipe.get.one.dto'
+import { RecipeGetMyInputDto } from './dtos/recipe.get.my.dto'
+import { RecipeGetCategoryInputDto } from './dtos/recipe.get.category.dto'
 
 @Injectable()
 export class RecipeService {
@@ -69,7 +71,7 @@ export class RecipeService {
         take: size,
         skip: (page - 1) * size,
         order: {
-          createAt: 'DESC',
+          createAt: 'ASC',
         },
       })
       if (recipesCount === 0) {
@@ -106,6 +108,55 @@ export class RecipeService {
         access: true,
         message: `Success find recipe ${recipe.title}`,
         recipe,
+      }
+    } catch (e) {
+      throw new InternalServerErrorException(e.message)
+    }
+  }
+
+  async getMy(owner: UserEntity, { page, size }: RecipeGetMyInputDto) {
+    try {
+      const [recipes, recipesCount] = await this.recipe.findAndCount({
+        where: { owner: { pk: owner.pk } },
+        take: size,
+        skip: (page - 1) * size,
+        order: {
+          createAt: 'ASC',
+        },
+      })
+      return {
+        access: true,
+        message: 'Success find my recipes',
+        recipesCount,
+        totalPages: Math.ceil(recipesCount / size),
+        recipes,
+      }
+    } catch (e) {
+      throw new InternalServerErrorException(e.message)
+    }
+  }
+
+  async getByCategory({ values, page, size }: RecipeGetCategoryInputDto) {
+    try {
+      const [recipes, recipesCount] = await this.recipe.findAndCount({
+        relations: ['owner', 'category'],
+        where: {
+          category: {
+            values,
+          },
+        },
+        take: size,
+        skip: (page - 1) * size,
+        order: {
+          createAt: 'ASC',
+        },
+      })
+      return {
+        access: true,
+        message: 'Success find recipes',
+        recipesCount,
+        totalPages: Math.ceil(recipesCount / size),
+        recipes,
       }
     } catch (e) {
       throw new InternalServerErrorException(e.message)

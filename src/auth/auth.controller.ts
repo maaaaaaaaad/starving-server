@@ -73,7 +73,7 @@ export class AuthController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Patch('update')
+  @Patch()
   @ApiConsumes('application/x-www-form-urlencoded')
   @ApiOperation({
     summary: 'Update user data',
