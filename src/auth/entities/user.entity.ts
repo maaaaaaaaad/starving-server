@@ -1,4 +1,4 @@
-import { BeforeInsert, BeforeUpdate, Column, Entity } from 'typeorm'
+import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany } from 'typeorm'
 import { CoreEntity } from '../../common/entities/core.entity'
 import {
   IsEmail,
@@ -10,6 +10,7 @@ import {
 import * as bcrypt from 'bcrypt'
 import { InternalServerErrorException } from '@nestjs/common'
 import { ApiProperty } from '@nestjs/swagger'
+import { RecipeEntity } from '../../recipe/entities/recipe.entity'
 
 export enum Social {
   KAKAO = 'KAKAO',
@@ -76,6 +77,9 @@ export class UserEntity extends CoreEntity {
     enum: Social,
   })
   social?: Social
+
+  @OneToMany(() => RecipeEntity, (recipe) => recipe.owner)
+  recipes: RecipeEntity[]
 
   @BeforeInsert()
   @BeforeUpdate()
