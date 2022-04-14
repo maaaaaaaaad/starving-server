@@ -12,9 +12,9 @@ export enum CategoryValues {
   FRIED = 'FRIED',
 }
 
-@Entity({ name: 'CATEGORY' })
+@Entity({ name: 'Category' })
 export class CategoryEntity extends CoreEntity {
-  @Column({ name: 'CATEGORY', enum: CategoryValues, nullable: false })
+  @Column({ name: 'VALUE', enum: CategoryValues, nullable: false })
   @IsEnum(CategoryValues)
   @IsNotEmpty()
   @ApiProperty({
@@ -23,7 +23,7 @@ export class CategoryEntity extends CoreEntity {
     nullable: false,
     required: true,
   })
-  category: CategoryValues
+  values: CategoryValues
 
   @OneToMany(() => RecipeEntity, (recipe) => recipe.category)
   recipes: RecipeEntity[]

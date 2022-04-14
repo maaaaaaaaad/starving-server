@@ -73,7 +73,11 @@ export class RecipeEntity extends CoreEntity {
   })
   amount: number
 
-  @Column({ name: 'FOOD_INGREDIENTS', type: 'json', nullable: false })
+  @Column({
+    name: 'FOOD_INGREDIENTS',
+    type: 'json',
+    nullable: false,
+  })
   @IsNotEmpty()
   @ApiProperty({
     description: 'Food ingredients',
@@ -97,7 +101,7 @@ export class RecipeEntity extends CoreEntity {
   @Column({ name: 'COOK_IMAGES', type: 'json', nullable: false })
   @IsNotEmpty()
   @ApiProperty({
-    description: 'Cook images',
+    description: 'Cook images max count 10',
     nullable: false,
     required: true,
     type: 'array',
