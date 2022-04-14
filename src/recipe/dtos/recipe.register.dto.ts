@@ -8,7 +8,7 @@ export class RecipeRegisterInputDto extends PickType(RecipeEntity, [
   'description',
   'foodName',
   'amount',
-  'foodIngredient',
+  'foodIngredients',
   'cookTime',
   'cookImages',
 ]) {

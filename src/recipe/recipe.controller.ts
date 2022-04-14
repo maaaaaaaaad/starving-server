@@ -27,7 +27,14 @@ export class RecipeController {
     @Body() recipeRegisterInputDto: RecipeRegisterInputDto,
     @UploadedFiles() cookImages: Array<Express.Multer.File>,
   ) {
-    console.log(cookImages)
-    console.log(recipeRegisterInputDto)
+    if (cookImages) {
+      const path: string[] = []
+      for (const image of cookImages) {
+        path.push(
+          `${process.env.HOST}:${process.env.PORT}/media/recipe-images/${image.filename}`,
+        )
+      }
+      recipeRegisterInputDto.cookImages = [...path]
+    }
   }
 }

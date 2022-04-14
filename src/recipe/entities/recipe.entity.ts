@@ -5,18 +5,6 @@ import { ApiProperty } from '@nestjs/swagger'
 import { CategoryEntity } from './category.entity'
 import { UserEntity } from '../../auth/entities/user.entity'
 
-export class CookImages {
-  @IsString()
-  @ApiProperty({
-    description: 'Cook images',
-    type: String,
-    nullable: false,
-    required: true,
-    format: 'binary',
-  })
-  cookImages: string
-}
-
 export class FoodIngredient {
   @IsString()
   @IsNotEmpty()
@@ -83,14 +71,15 @@ export class RecipeEntity extends CoreEntity {
     nullable: false,
     required: true,
   })
-  amount: string
+  amount: number
 
   @Column({ name: 'FOOD_INGREDIENTS', type: 'json', nullable: false })
   @IsNotEmpty()
   @ApiProperty({
-    description: 'Food ingredient',
+    description: 'Food ingredients',
     nullable: false,
     required: true,
+    type: [FoodIngredient],
   })
   foodIngredients: FoodIngredient[]
 
@@ -111,8 +100,13 @@ export class RecipeEntity extends CoreEntity {
     description: 'Cook images',
     nullable: false,
     required: true,
+    type: 'array',
+    items: {
+      type: 'string',
+      format: 'binary',
+    },
   })
-  cookImages: CookImages[]
+  cookImages: string[]
 
   @ManyToOne(() => CategoryEntity, (category) => category.recipes, {
     eager: true,
