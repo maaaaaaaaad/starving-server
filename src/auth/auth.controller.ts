@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Patch, Post, UseGuards } from '@nestjs/common'
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Patch,
+  Post,
+  UseGuards,
+} from '@nestjs/common'
 import { AuthService } from './auth.service'
 import { UserRegisterInputDto } from './dtos/user.register.dto'
 import {
@@ -85,5 +93,13 @@ export class AuthController {
     @Body() userUpdateInputDto: UserUpdateInputDto,
   ) {
     return await this.authService.update(user.pk, userUpdateInputDto)
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete()
+  @ApiOperation({ summary: 'Delete user account' })
+  @ApiBearerAuth('access-token')
+  async delete(@User() user: UserEntity) {
+    return await this.authService.delete(user)
   }
 }

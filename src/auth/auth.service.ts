@@ -237,4 +237,16 @@ export class AuthService {
       user,
     }
   }
+
+  async delete(user: UserEntity) {
+    try {
+      await this.userEntity.delete(user.pk)
+      return {
+        access: true,
+        message: 'Delete this user account',
+      }
+    } catch (e) {
+      throw new InternalServerErrorException(e.message)
+    }
+  }
 }
