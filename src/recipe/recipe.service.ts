@@ -5,6 +5,7 @@ import { Repository } from 'typeorm'
 import { RecipeRegisterInputDto } from './dtos/recipe.register.dto'
 import { CategoryEntity } from './entities/category.entity'
 import { UserEntity } from '../auth/entities/user.entity'
+import { RecipeGetAllInputDto } from './dtos/recipe.get.all.dto'
 
 @Injectable()
 export class RecipeService {
@@ -54,6 +55,34 @@ export class RecipeService {
       return {
         access: true,
         message: `Success recipe ${recipe.title}`,
+      }
+    } catch (e) {
+      throw new InternalServerErrorException(e.message)
+    }
+  }
+
+  async getAll({ page, size }: RecipeGetAllInputDto) {
+    try {
+      const [recipes, recipesCount] = await this.recipe.findAndCount({
+        relations: ['owner'],
+        take: size,
+        skip: (page - 1) * size,
+        order: {
+          createAt: 'DESC',
+        },
+      })
+      if (recipesCount === 0) {
+        return {
+          access: false,
+          message: 'No recipes',
+        }
+      }
+      return {
+        access: true,
+        message: 'Success',
+        recipesCount,
+        totalPages: Math.ceil(recipesCount / size),
+        recipes,
       }
     } catch (e) {
       throw new InternalServerErrorException(e.message)
