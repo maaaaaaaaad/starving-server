@@ -1,9 +1,11 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpException,
   HttpStatus,
+  Patch,
   Post,
   Query,
   UploadedFiles,
@@ -28,6 +30,8 @@ import { RecipeGetAllInputDto } from './dtos/recipe.get.all.dto'
 import { RecipeGetOneInputDto } from './dtos/recipe.get.one.dto'
 import { RecipeGetMyInputDto } from './dtos/recipe.get.my.dto'
 import { RecipeGetCategoryInputDto } from './dtos/recipe.get.category.dto'
+import { RecipeUpdateInputDto } from './dtos/recipe.update.dto'
+import { RecipeDeleteInputDto } from './dtos/recipe.delete.dto'
 
 @Controller('recipe')
 @ApiTags('recipe')
@@ -90,5 +94,42 @@ export class RecipeController {
     @Query() recipeGetCategoryInputDto: RecipeGetCategoryInputDto,
   ) {
     return await this.recipeService.getByCategory(recipeGetCategoryInputDto)
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch()
+  @UseInterceptors(
+    FilesInterceptor('cookImages', 10, multerOptions('recipe-images')),
+  )
+  @ApiBearerAuth('access-token')
+  @ApiConsumes('multipart/form-data')
+  @ApiOperation({ summary: 'Update my recipe' })
+  @ApiBody({ type: RecipeUpdateInputDto })
+  async update(
+    @Body() recipeUpdateInputDto: RecipeUpdateInputDto,
+    @UploadedFiles() cookImages: Array<Express.Multer.File>,
+    @User() owner: UserEntity,
+  ) {
+    if (cookImages) {
+      const path: string[] = []
+      for (const image of cookImages) {
+        path.push(
+          `${process.env.HOST}:${process.env.PORT}/media/recipe-images/${image.filename}`,
+        )
+      }
+      recipeUpdateInputDto.cookImages = [...path]
+    }
+    throw new HttpException('Required cook images', HttpStatus.BAD_REQUEST)
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete()
+  @ApiBearerAuth('access-token')
+  @ApiOperation({ summary: 'Delete my recipe' })
+  async delete(
+    @User() owner: UserEntity,
+    @Query() recipeDeleteInputDto: RecipeDeleteInputDto,
+  ) {
+    return await this.recipeService.delete(owner, recipeDeleteInputDto)
   }
 }

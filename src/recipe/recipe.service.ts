@@ -9,6 +9,7 @@ import { RecipeGetAllInputDto } from './dtos/recipe.get.all.dto'
 import { RecipeGetOneInputDto } from './dtos/recipe.get.one.dto'
 import { RecipeGetMyInputDto } from './dtos/recipe.get.my.dto'
 import { RecipeGetCategoryInputDto } from './dtos/recipe.get.category.dto'
+import { RecipeDeleteInputDto } from './dtos/recipe.delete.dto'
 
 @Injectable()
 export class RecipeService {
@@ -157,6 +158,34 @@ export class RecipeService {
         recipesCount,
         totalPages: Math.ceil(recipesCount / size),
         recipes,
+      }
+    } catch (e) {
+      throw new InternalServerErrorException(e.message)
+    }
+  }
+
+  async delete(owner: UserEntity, { pk }: RecipeDeleteInputDto) {
+    try {
+      const recipe = await this.recipe.findOne({
+        where: { pk },
+        relations: ['owner'],
+      })
+      if (!recipe) {
+        return {
+          access: false,
+          message: 'Not found this recipe',
+        }
+      }
+      if (recipe.owner.pk !== owner.pk) {
+        return {
+          access: false,
+          message: 'Not match owner primary key',
+        }
+      }
+      await this.recipe.delete(recipe.pk)
+      return {
+        access: true,
+        message: `Success delete recipe ${recipe.title}`,
       }
     } catch (e) {
       throw new InternalServerErrorException(e.message)
