@@ -6,6 +6,7 @@ import { RecipeRegisterInputDto } from './dtos/recipe.register.dto'
 import { CategoryEntity } from './entities/category.entity'
 import { UserEntity } from '../auth/entities/user.entity'
 import { RecipeGetAllInputDto } from './dtos/recipe.get.all.dto'
+import { RecipeGetOneInputDto } from './dtos/recipe.get.one.dto'
 
 @Injectable()
 export class RecipeService {
@@ -83,6 +84,28 @@ export class RecipeService {
         recipesCount,
         totalPages: Math.ceil(recipesCount / size),
         recipes,
+      }
+    } catch (e) {
+      throw new InternalServerErrorException(e.message)
+    }
+  }
+
+  async getOne({ pk }: RecipeGetOneInputDto) {
+    try {
+      const recipe = await this.recipe.findOne({
+        relations: ['owner'],
+        where: { pk },
+      })
+      if (!recipe) {
+        return {
+          access: false,
+          message: 'Not found this recipe',
+        }
+      }
+      return {
+        access: true,
+        message: `Success find recipe ${recipe.title}`,
+        recipe,
       }
     } catch (e) {
       throw new InternalServerErrorException(e.message)

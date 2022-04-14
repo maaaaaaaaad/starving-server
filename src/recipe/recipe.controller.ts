@@ -16,7 +16,6 @@ import {
   ApiBody,
   ApiConsumes,
   ApiOperation,
-  ApiQuery,
   ApiTags,
 } from '@nestjs/swagger'
 import { RecipeRegisterInputDto } from './dtos/recipe.register.dto'
@@ -26,6 +25,7 @@ import { JwtAuthGuard } from '../auth/jwt/jwt-auth.guard'
 import { User } from '../common/decorators/user.decorator'
 import { UserEntity } from '../auth/entities/user.entity'
 import { RecipeGetAllInputDto } from './dtos/recipe.get.all.dto'
+import { RecipeGetOneInputDto } from './dtos/recipe.get.one.dto'
 
 @Controller('recipe')
 @ApiTags('recipe')
@@ -63,5 +63,11 @@ export class RecipeController {
   @ApiOperation({ summary: 'Get all recipe' })
   async getAll(@Query() recipeGetAllInputDto: RecipeGetAllInputDto) {
     return await this.recipeService.getAll(recipeGetAllInputDto)
+  }
+
+  @Get('one')
+  @ApiOperation({ summary: 'Get one recipe' })
+  async getOne(@Query() recipeGetOneInputDto: RecipeGetOneInputDto) {
+    return await this.recipeService.getOne(recipeGetOneInputDto)
   }
 }

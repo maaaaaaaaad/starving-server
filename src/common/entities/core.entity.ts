@@ -6,10 +6,12 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm'
+import { ApiProperty } from '@nestjs/swagger'
 
 @Entity({ name: 'Core' })
 export class CoreEntity extends BaseEntity {
   @PrimaryGeneratedColumn({ name: 'PK' })
+  @ApiProperty({ type: Number })
   pk: number
 
   @CreateDateColumn({ name: 'CREATE_AT' })
