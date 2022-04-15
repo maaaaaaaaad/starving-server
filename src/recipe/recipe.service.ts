@@ -10,6 +10,7 @@ import { RecipeGetOneInputDto } from './dtos/recipe.get.one.dto'
 import { RecipeGetMyInputDto } from './dtos/recipe.get.my.dto'
 import { RecipeGetCategoryInputDto } from './dtos/recipe.get.category.dto'
 import { RecipeDeleteInputDto } from './dtos/recipe.delete.dto'
+import { RecipeUpdateInputDto } from './dtos/recipe.update.dto'
 
 @Injectable()
 export class RecipeService {
@@ -25,10 +26,7 @@ export class RecipeService {
     {
       title,
       description,
-      foodName,
-      amount,
-      cookTime,
-      foodIngredients,
+      mainText,
       cookImages,
       category,
     }: RecipeRegisterInputDto,
@@ -37,10 +35,7 @@ export class RecipeService {
       const recipe = await this.recipe.create({
         title,
         description,
-        foodName,
-        amount,
-        cookTime,
-        foodIngredients,
+        mainText,
         cookImages,
       })
       recipe.owner = owner
@@ -158,6 +153,49 @@ export class RecipeService {
         recipesCount,
         totalPages: Math.ceil(recipesCount / size),
         recipes,
+      }
+    } catch (e) {
+      throw new InternalServerErrorException(e.message)
+    }
+  }
+
+  async update(
+    owner: UserEntity,
+    { pk, description, mainText, cookImages }: RecipeUpdateInputDto,
+  ) {
+    try {
+      const recipe = await this.recipe.findOne({
+        where: {
+          pk,
+        },
+        relations: ['owner'],
+      })
+      if (!recipe) {
+        return {
+          access: false,
+          message: 'Not found this recipe',
+        }
+      }
+      if (recipe.owner.pk !== owner.pk) {
+        return {
+          access: false,
+          message: 'Not match owner primary key',
+        }
+      }
+      if (description) {
+        recipe.description = description
+      }
+      if (mainText) {
+        recipe.mainText = mainText
+      }
+      if (cookImages) {
+        recipe.cookImages = [...recipe.cookImages, ...cookImages]
+      }
+      await this.recipe.save(recipe)
+      return {
+        access: true,
+        message: 'Success update recipe',
+        recipe,
       }
     } catch (e) {
       throw new InternalServerErrorException(e.message)

@@ -1,6 +1,12 @@
 import { OmitType, PartialType } from '@nestjs/swagger'
-import { RecipeRegisterInputDto } from './recipe.register.dto'
+import { RecipeEntity } from '../entities/recipe.entity'
 
 export class RecipeUpdateInputDto extends PartialType(
-  OmitType(RecipeRegisterInputDto, ['title', 'category']),
+  OmitType(RecipeEntity, [
+    'title',
+    'category',
+    'createAt',
+    'updateAt',
+    'deleteAt',
+  ]),
 ) {}

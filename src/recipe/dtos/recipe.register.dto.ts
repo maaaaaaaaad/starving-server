@@ -6,10 +6,7 @@ import { CategoryValues } from '../entities/category.entity'
 export class RecipeRegisterInputDto extends PickType(RecipeEntity, [
   'title',
   'description',
-  'foodName',
-  'amount',
-  'foodIngredients',
-  'cookTime',
+  'mainText',
   'cookImages',
 ]) {
   @IsEnum(CategoryValues)

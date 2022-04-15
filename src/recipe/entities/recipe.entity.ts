@@ -1,31 +1,9 @@
-import { Column, Entity, ManyToOne, RelationId } from 'typeorm'
+import { Column, Entity, ManyToOne } from 'typeorm'
 import { CoreEntity } from '../../common/entities/core.entity'
 import { IsNotEmpty, IsNumber, IsString } from 'class-validator'
 import { ApiProperty } from '@nestjs/swagger'
 import { CategoryEntity } from './category.entity'
 import { UserEntity } from '../../auth/entities/user.entity'
-
-export class FoodIngredient {
-  @IsString()
-  @IsNotEmpty()
-  @ApiProperty({
-    description: 'Food ingredient subject',
-    type: String,
-    nullable: false,
-    required: true,
-  })
-  subject: string
-
-  @IsNumber()
-  @IsNotEmpty()
-  @ApiProperty({
-    description: 'Food ingredient amount',
-    type: Number,
-    nullable: false,
-    required: true,
-  })
-  amount: number
-}
 
 @Entity({ name: 'Recipe' })
 export class RecipeEntity extends CoreEntity {
@@ -51,52 +29,15 @@ export class RecipeEntity extends CoreEntity {
   })
   description: string
 
-  @Column({ name: 'FOOD_NAME', type: String, nullable: false })
+  @Column({ name: 'MAIN_TEXT', type: String, nullable: false })
   @IsString()
   @IsNotEmpty()
   @ApiProperty({
-    description: 'Recipe food name',
-    type: String,
+    description: 'Cook main text field',
     nullable: false,
     required: true,
   })
-  foodName: string
-
-  @Column({ name: 'AMOUNT', type: Number, nullable: false })
-  @IsNumber()
-  @IsNotEmpty()
-  @ApiProperty({
-    description: 'Food amount',
-    type: Number,
-    nullable: false,
-    required: true,
-  })
-  amount: number
-
-  @Column({
-    name: 'FOOD_INGREDIENTS',
-    type: 'json',
-    nullable: false,
-  })
-  @IsNotEmpty()
-  @ApiProperty({
-    description: 'Food ingredients',
-    nullable: false,
-    required: true,
-    type: [FoodIngredient],
-  })
-  foodIngredients: FoodIngredient[]
-
-  @Column({ name: 'COOK_TIME', type: Number, nullable: false })
-  @IsNumber()
-  @IsNotEmpty()
-  @ApiProperty({
-    description: 'Cook time',
-    type: Number,
-    nullable: false,
-    required: true,
-  })
-  cookTime: number
+  mainText: string
 
   @Column({ name: 'COOK_IMAGES', type: 'json', nullable: false })
   @IsNotEmpty()

@@ -118,6 +118,7 @@ export class RecipeController {
         )
       }
       recipeUpdateInputDto.cookImages = [...path]
+      return await this.recipeService.update(owner, recipeUpdateInputDto)
     }
     throw new HttpException('Required cook images', HttpStatus.BAD_REQUEST)
   }
