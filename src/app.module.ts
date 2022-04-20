@@ -7,6 +7,7 @@ import { AppLoggerMiddleware } from './common/middlewares/logger.middleware'
 import { AuthModule } from './auth/auth.module'
 import { UploadModule } from './upload/upload.module';
 import { RecipeModule } from './recipe/recipe.module';
+import { CommentModule } from './comment/comment.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { RecipeModule } from './recipe/recipe.module';
     AuthModule,
     UploadModule,
     RecipeModule,
+    CommentModule,
   ],
   controllers: [],
   providers: [],

@@ -1,9 +1,10 @@
-import { Column, Entity, ManyToOne } from 'typeorm'
+import { Column, Entity, ManyToOne, OneToMany } from 'typeorm'
 import { CoreEntity } from '../../common/entities/core.entity'
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator'
+import { IsNotEmpty, IsString } from 'class-validator'
 import { ApiProperty } from '@nestjs/swagger'
 import { CategoryEntity } from './category.entity'
 import { UserEntity } from '../../auth/entities/user.entity'
+import { CommentEntity } from '../../comment/entities/comment.entity'
 
 @Entity({ name: 'Recipe' })
 export class RecipeEntity extends CoreEntity {
@@ -62,4 +63,7 @@ export class RecipeEntity extends CoreEntity {
     onDelete: 'CASCADE',
   })
   owner: UserEntity
+
+  @OneToMany(() => CommentEntity, (comment) => comment.recipe)
+  comments: CommentEntity[]
 }
