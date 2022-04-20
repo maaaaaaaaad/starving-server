@@ -8,6 +8,7 @@ import {
 } from './dtos/comment.register.dto'
 import { RecipeEntity } from '../recipe/entities/recipe.entity'
 import { UserEntity } from '../auth/entities/user.entity'
+import { CommentGetInputDto, CommentGetOutputDto } from './dtos/comment.get.dto'
 
 @Injectable()
 export class CommentService {
@@ -23,11 +24,7 @@ export class CommentService {
     { content, recipePk }: CommentRegisterInputDto,
   ): Promise<CommentRegisterOutputDto> {
     try {
-      const recipe = await this.recipe.findOne({
-        where: {
-          pk: recipePk,
-        },
-      })
+      const recipe = await this.recipe.findOne({ where: { pk: recipePk } })
       if (!recipe) {
         return {
           access: false,
@@ -43,6 +40,30 @@ export class CommentService {
       return {
         access: true,
         message: 'Success register comment',
+      }
+    } catch (e) {
+      throw new InternalServerErrorException(e.message)
+    }
+  }
+
+  async get({
+    recipePk,
+    page,
+    size,
+  }: CommentGetInputDto): Promise<CommentGetOutputDto> {
+    try {
+      const [comments, commentsCount] = await this.comment.findAndCount({
+        where: { recipe: { pk: recipePk } },
+        take: size,
+        skip: (page - 1) * size,
+        order: {
+          createAt: 'DESC',
+        },
+      })
+      return {
+        totalCount: commentsCount,
+        totalPages: Math.ceil(commentsCount / size),
+        comments,
       }
     } catch (e) {
       throw new InternalServerErrorException(e.message)

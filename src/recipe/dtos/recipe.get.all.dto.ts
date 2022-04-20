@@ -1,3 +1,3 @@
-import { PaginationDto } from '../../common/dtos/pagination.dto'
+import { PaginationInputDto } from '../../common/dtos/pagination.dto'
 
-export class RecipeGetAllInputDto extends PaginationDto {}
+export class RecipeGetAllInputDto extends PaginationInputDto {}

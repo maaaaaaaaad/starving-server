@@ -1,7 +1,7 @@
 import { IsNotEmpty, IsNumber } from 'class-validator'
 import { ApiProperty } from '@nestjs/swagger'
 
-export class PaginationDto {
+export class PaginationInputDto {
   @IsNumber()
   @IsNotEmpty()
   @ApiProperty({
@@ -21,4 +21,20 @@ export class PaginationDto {
     required: true,
   })
   size: number
+}
+
+export class PaginationOutputDto {
+  @IsNumber()
+  @ApiProperty({
+    description: 'Get item total count',
+    type: Number,
+  })
+  totalCount: number
+
+  @IsNumber()
+  @ApiProperty({
+    description: 'Get page total count',
+    type: Number,
+  })
+  totalPages: number
 }
