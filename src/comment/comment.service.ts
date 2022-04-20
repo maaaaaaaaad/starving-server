@@ -13,6 +13,10 @@ import {
   CommentUpdateInputDto,
   CommentUpdateOutputDto,
 } from './dtos/comment.update.dto'
+import {
+  CommentDeleteInputDto,
+  CommentDeleteOutputDto,
+} from './dtos/comment.delete.dto'
 
 @Injectable()
 export class CommentService {
@@ -99,6 +103,34 @@ export class CommentService {
       return {
         access: true,
         message: 'Success update comment',
+      }
+    } catch (e) {
+      throw new InternalServerErrorException(e.message)
+    }
+  }
+
+  async delete(
+    owner: UserEntity,
+    { pk }: CommentDeleteInputDto,
+  ): Promise<CommentDeleteOutputDto> {
+    try {
+      const comment = await this.comment.findOne({ where: { pk } })
+      if (!comment) {
+        return {
+          access: false,
+          message: 'Not found comment',
+        }
+      }
+      if (comment.ownerPk !== owner.pk) {
+        return {
+          access: false,
+          message: 'Owner primary key do not match',
+        }
+      }
+      await this.comment.delete(comment.pk)
+      return {
+        access: true,
+        message: 'Success delete comment',
       }
     } catch (e) {
       throw new InternalServerErrorException(e.message)
