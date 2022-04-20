@@ -9,6 +9,10 @@ import {
 import { RecipeEntity } from '../recipe/entities/recipe.entity'
 import { UserEntity } from '../auth/entities/user.entity'
 import { CommentGetInputDto, CommentGetOutputDto } from './dtos/comment.get.dto'
+import {
+  CommentUpdateInputDto,
+  CommentUpdateOutputDto,
+} from './dtos/comment.update.dto'
 
 @Injectable()
 export class CommentService {
@@ -64,6 +68,37 @@ export class CommentService {
         totalCount: commentsCount,
         totalPages: Math.ceil(commentsCount / size),
         comments,
+      }
+    } catch (e) {
+      throw new InternalServerErrorException(e.message)
+    }
+  }
+
+  async update(
+    owner: UserEntity,
+    { pk, content }: CommentUpdateInputDto,
+  ): Promise<CommentUpdateOutputDto> {
+    try {
+      const comment = await this.comment.findOne({ where: { pk } })
+      if (!comment) {
+        return {
+          access: false,
+          message: 'Not found comment',
+        }
+      }
+      if (comment.ownerPk !== owner.pk) {
+        return {
+          access: false,
+          message: 'Owner primary key do not match',
+        }
+      }
+      await this.comment.save({
+        ...comment,
+        content,
+      })
+      return {
+        access: true,
+        message: 'Success update comment',
       }
     } catch (e) {
       throw new InternalServerErrorException(e.message)

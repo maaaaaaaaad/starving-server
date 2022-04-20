@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne } from 'typeorm'
+import { Column, Entity, ManyToOne, RelationId } from 'typeorm'
 import { CoreEntity } from '../../common/entities/core.entity'
 import { IsNotEmpty, IsString } from 'class-validator'
 import { ApiProperty } from '@nestjs/swagger'
@@ -23,6 +23,9 @@ export class CommentEntity extends CoreEntity {
     onDelete: 'CASCADE',
   })
   owner: UserEntity
+
+  @RelationId((comment: CommentEntity) => comment.owner)
+  ownerPk
 
   @ManyToOne(() => RecipeEntity, (recipe) => recipe.comments, {
     onDelete: 'CASCADE',
