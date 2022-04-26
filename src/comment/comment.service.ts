@@ -62,6 +62,7 @@ export class CommentService {
     try {
       const [comments, commentsCount] = await this.comment.findAndCount({
         where: { recipe: { pk: recipePk } },
+        relations: ['owner'],
         take: size,
         skip: (page - 1) * size,
         order: {
