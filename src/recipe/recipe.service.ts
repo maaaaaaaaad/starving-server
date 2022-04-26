@@ -1,7 +1,7 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { RecipeEntity } from './entities/recipe.entity'
-import { Repository } from 'typeorm'
+import { ILike, Repository } from 'typeorm'
 import { RecipeRegisterInputDto } from './dtos/recipe.register.dto'
 import { CategoryEntity } from './entities/category.entity'
 import { UserEntity } from '../auth/entities/user.entity'
@@ -11,6 +11,10 @@ import { RecipeGetMyInputDto } from './dtos/recipe.get.my.dto'
 import { RecipeGetCategoryInputDto } from './dtos/recipe.get.category.dto'
 import { RecipeDeleteInputDto } from './dtos/recipe.delete.dto'
 import { RecipeUpdateInputDto } from './dtos/recipe.update.dto'
+import {
+  RecipeSearchInputDto,
+  RecipeSearchOutputDto,
+} from './dtos/recipe.search.dto'
 
 @Injectable()
 export class RecipeService {
@@ -224,6 +228,33 @@ export class RecipeService {
       return {
         access: true,
         message: `Success delete recipe ${recipe.title}`,
+      }
+    } catch (e) {
+      throw new InternalServerErrorException(e.message)
+    }
+  }
+
+  async search({
+    keyword,
+    page,
+    size,
+  }: RecipeSearchInputDto): Promise<RecipeSearchOutputDto> {
+    try {
+      const [recipes, recipesCount] = await this.recipe.findAndCount({
+        where: {
+          title: ILike(`%${keyword}%`),
+        },
+        relations: ['owner'],
+        take: size,
+        skip: (page - 1) * size,
+        order: {
+          createAt: 'DESC',
+        },
+      })
+      return {
+        totalCount: recipesCount,
+        totalPages: Math.ceil(recipesCount / size),
+        recipes,
       }
     } catch (e) {
       throw new InternalServerErrorException(e.message)

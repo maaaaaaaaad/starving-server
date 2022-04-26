@@ -13,21 +13,6 @@ services:
     ports:
       - '5432:5432'
 
-  server-dev:
-    restart: always
-    container_name: starving-dev-server
-    build:
-      context: ./
-      dockerfile: Dockerfile.dev
-    env_file:
-      - ./.development.env
-    ports:
-      - '8888:8888'
-    volumes:
-      - ./:/app/starving/server
-    depends_on:
-      - psql
-
   server-prod:
     restart: always
     container_name: starving-prod-server

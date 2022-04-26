@@ -32,6 +32,10 @@ import { RecipeGetMyInputDto } from './dtos/recipe.get.my.dto'
 import { RecipeGetCategoryInputDto } from './dtos/recipe.get.category.dto'
 import { RecipeUpdateInputDto } from './dtos/recipe.update.dto'
 import { RecipeDeleteInputDto } from './dtos/recipe.delete.dto'
+import {
+  RecipeSearchInputDto,
+  RecipeSearchOutputDto,
+} from './dtos/recipe.search.dto'
 
 @Controller('recipe')
 @ApiTags('recipe')
@@ -132,5 +136,13 @@ export class RecipeController {
     @Query() recipeDeleteInputDto: RecipeDeleteInputDto,
   ) {
     return await this.recipeService.delete(owner, recipeDeleteInputDto)
+  }
+
+  @Get('search')
+  @ApiOperation({ summary: 'Search recipe' })
+  async search(
+    @Query() recipeSearchInputDto: RecipeSearchInputDto,
+  ): Promise<RecipeSearchOutputDto> {
+    return await this.recipeService.search(recipeSearchInputDto)
   }
 }
