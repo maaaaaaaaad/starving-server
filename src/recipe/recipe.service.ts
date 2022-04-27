@@ -71,7 +71,7 @@ export class RecipeService {
         take: size,
         skip: (page - 1) * size,
         order: {
-          createAt: 'ASC',
+          createAt: 'DESC',
         },
       })
       if (recipesCount === 0) {
@@ -121,7 +121,7 @@ export class RecipeService {
         take: size,
         skip: (page - 1) * size,
         order: {
-          createAt: 'ASC',
+          createAt: 'DESC',
         },
       })
       return {
@@ -148,7 +148,7 @@ export class RecipeService {
         take: size,
         skip: (page - 1) * size,
         order: {
-          createAt: 'ASC',
+          createAt: 'DESC',
         },
       })
       return {
