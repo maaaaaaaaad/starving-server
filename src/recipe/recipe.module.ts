@@ -9,5 +9,6 @@ import { CategoryEntity } from './entities/category.entity'
   imports: [TypeOrmModule.forFeature([RecipeEntity, CategoryEntity])],
   controllers: [RecipeController],
   providers: [RecipeService],
+  exports: [RecipeService],
 })
 export class RecipeModule {}

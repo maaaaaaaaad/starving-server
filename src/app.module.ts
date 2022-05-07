@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module'
 import { UploadModule } from './upload/upload.module';
 import { RecipeModule } from './recipe/recipe.module';
 import { CommentModule } from './comment/comment.module';
+import { LikeModule } from './like/like.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { CommentModule } from './comment/comment.module';
     UploadModule,
     RecipeModule,
     CommentModule,
+    LikeModule,
   ],
   controllers: [],
   providers: [],

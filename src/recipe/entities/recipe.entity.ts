@@ -5,6 +5,7 @@ import { ApiProperty } from '@nestjs/swagger'
 import { CategoryEntity } from './category.entity'
 import { UserEntity } from '../../auth/entities/user.entity'
 import { CommentEntity } from '../../comment/entities/comment.entity'
+import { LikeEntity } from '../../like/entities/like.entity'
 
 @Entity({ name: 'Recipe' })
 export class RecipeEntity extends CoreEntity {
@@ -66,4 +67,7 @@ export class RecipeEntity extends CoreEntity {
 
   @OneToMany(() => CommentEntity, (comment) => comment.recipe)
   comments: CommentEntity[]
+
+  @OneToMany(() => LikeEntity, (likes) => likes.recipe)
+  likes: LikeEntity[]
 }

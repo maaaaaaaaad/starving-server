@@ -11,6 +11,7 @@ import * as bcrypt from 'bcrypt'
 import { InternalServerErrorException } from '@nestjs/common'
 import { ApiProperty } from '@nestjs/swagger'
 import { RecipeEntity } from '../../recipe/entities/recipe.entity'
+import { LikeEntity } from '../../like/entities/like.entity'
 
 export enum Social {
   KAKAO = 'KAKAO',
@@ -80,6 +81,9 @@ export class UserEntity extends CoreEntity {
 
   @OneToMany(() => RecipeEntity, (recipe) => recipe.owner)
   recipes: RecipeEntity[]
+
+  @OneToMany(() => LikeEntity, (likes) => likes.owner)
+  likes: LikeEntity[]
 
   @BeforeInsert()
   @BeforeUpdate()
