@@ -22,14 +22,39 @@ export class LikeService {
     owner: UserEntity,
     { recipePk }: LikeRegisterInputDto,
   ): Promise<LikeRegisterOutputDto> {
-    const recipe = await this.recipeEntity.findOne({ where: { pk: recipePk } })
-    if (!recipe) {
-      return {
-        access: false,
-        message: 'Not found recipe',
-      }
-    }
     try {
+      let like = await this.likeEntity.findOne({
+        relations: ['owner', 'recipe'],
+        where: {
+          owner: {
+            pk: owner.pk,
+          },
+          recipe: {
+            pk: recipePk,
+          },
+        },
+      })
+      if (like) {
+        return {
+          access: false,
+          message: 'Like already to taken',
+        }
+      }
+      const recipe = await this.recipeEntity.findOne({
+        where: { pk: recipePk },
+      })
+      if (!recipe) {
+        return {
+          access: false,
+          message: 'Not found recipe',
+        }
+      }
+      like = await this.likeEntity.create({ owner, recipe })
+      await this.likeEntity.save(like)
+      return {
+        access: true,
+        message: 'Success add like',
+      }
     } catch (e) {
       throw new InternalServerErrorException(e.message)
     }
