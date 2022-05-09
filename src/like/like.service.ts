@@ -61,4 +61,40 @@ export class LikeService {
       throw new InternalServerErrorException(e.message)
     }
   }
+
+  async delete(
+    owner: UserEntity,
+    { recipePk }: LikeRegisterInputDto,
+  ): Promise<LikeRegisterOutputDto> {
+    try {
+      const like = await this.likeEntity.findOne({
+        where: {
+          owner: {
+            pk: owner.pk,
+          },
+          recipe: {
+            pk: recipePk,
+          },
+        },
+      })
+      if (!like) {
+        return {
+          access: false,
+          message: 'Not found like',
+        }
+      }
+      const recipe = await this.recipeEntity.findOne({
+        where: { pk: recipePk },
+      })
+      recipe.likesCount -= 1
+      await this.recipeEntity.save(recipe)
+      await this.likeEntity.delete(like.pk)
+      return {
+        access: true,
+        message: 'Success delete like',
+      }
+    } catch (e) {
+      throw new InternalServerErrorException(e.message)
+    }
+  }
 }
