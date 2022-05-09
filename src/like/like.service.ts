@@ -50,6 +50,8 @@ export class LikeService {
         }
       }
       like = await this.likeEntity.create({ owner, recipe })
+      recipe.likesCount += 1
+      await this.recipeEntity.save(recipe)
       await this.likeEntity.save(like)
       return {
         access: true,

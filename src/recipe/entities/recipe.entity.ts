@@ -70,4 +70,7 @@ export class RecipeEntity extends CoreEntity {
 
   @OneToMany(() => LikeEntity, (likes) => likes.recipe)
   likes: LikeEntity[]
+
+  @Column({ name: 'LIKES_COUNT', type: Number, nullable: true, default: 0 })
+  likesCount?: number
 }
