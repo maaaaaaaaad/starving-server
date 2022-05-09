@@ -6,40 +6,30 @@ import {
   LikeRegisterInputDto,
   LikeRegisterOutputDto,
 } from './dtos/like.register.dto'
-import { RecipeService } from '../recipe/recipe.service'
 import { UserEntity } from '../auth/entities/user.entity'
+import { RecipeEntity } from '../recipe/entities/recipe.entity'
 
 @Injectable()
 export class LikeService {
   constructor(
     @InjectRepository(LikeEntity)
     private readonly likeEntity: Repository<LikeEntity>,
-    private readonly recipeService: RecipeService,
+    @InjectRepository(RecipeEntity)
+    private readonly recipeEntity: Repository<RecipeEntity>,
   ) {}
 
   async register(
     owner: UserEntity,
     { recipePk }: LikeRegisterInputDto,
   ): Promise<LikeRegisterOutputDto> {
-    try {
-      const { access, recipe } = await this.recipeService.getOne({
-        pk: recipePk,
-      })
-      if (access) {
-        const like = await this.likeEntity.create({
-          owner,
-          recipe,
-        })
-        await this.likeEntity.save(like)
-        return {
-          access: true,
-          message: 'Success add like',
-        }
-      }
+    const recipe = await this.recipeEntity.findOne({ where: { pk: recipePk } })
+    if (!recipe) {
       return {
         access: false,
-        message: 'Failed add like',
+        message: 'Not found recipe',
       }
+    }
+    try {
     } catch (e) {
       throw new InternalServerErrorException(e.message)
     }
