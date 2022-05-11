@@ -84,15 +84,14 @@ export class AuthService {
             message: 'Already to this user nickname',
           }
         }
-        await this.userEntity.save(
-          this.userEntity.create({
-            email,
-            password,
-            nickname,
-            avatarImage: avatarImage === '' ? null : avatarImage,
-            social: null,
-          }),
-        )
+        const user = this.userEntity.create({
+          email,
+          password,
+          nickname,
+          avatarImage: avatarImage === '' ? null : avatarImage,
+          social: null,
+        })
+        await this.userEntity.save(user)
         return {
           access: true,
           success: 'Success register user account',
