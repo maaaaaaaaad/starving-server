@@ -1,13 +1,14 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { LikeEntity } from './entities/like.entity'
-import { Repository } from 'typeorm'
+import { Connection, Repository } from 'typeorm'
 import {
   LikeRegisterInputDto,
   LikeRegisterOutputDto,
 } from './dtos/like.register.dto'
 import { UserEntity } from '../auth/entities/user.entity'
 import { RecipeEntity } from '../recipe/entities/recipe.entity'
+import { LikeListInputDto, LikeListOutputDto } from './dtos/like.list.dto'
 
 @Injectable()
 export class LikeService {
@@ -16,6 +17,7 @@ export class LikeService {
     private readonly likeEntity: Repository<LikeEntity>,
     @InjectRepository(RecipeEntity)
     private readonly recipeEntity: Repository<RecipeEntity>,
+    private readonly connection: Connection,
   ) {}
 
   async register(
@@ -49,13 +51,43 @@ export class LikeService {
           message: 'Not found recipe',
         }
       }
-      like = await this.likeEntity.create({ owner, recipe })
-      recipe.likesCount += 1
-      await this.recipeEntity.save(recipe)
-      await this.likeEntity.save(like)
+      await this.connection.transaction(async (manager) => {
+        like = await this.likeEntity.create({ owner, recipe })
+        recipe.likesCount += 1
+        await manager.save(recipe)
+        await manager.save(like)
+      })
       return {
         access: true,
         message: 'Success add like',
+      }
+    } catch (e) {
+      throw new InternalServerErrorException(e.message)
+    }
+  }
+
+  async my(
+    { pk }: UserEntity,
+    { page, size }: LikeListInputDto,
+  ): Promise<LikeListOutputDto> {
+    try {
+      const [likes, likesCount] = await this.likeEntity.findAndCount({
+        relations: ['owner', 'recipe'],
+        where: {
+          owner: {
+            pk,
+          },
+        },
+        take: size,
+        skip: (page - 1) * size,
+        order: {
+          createAt: 'DESC',
+        },
+      })
+      return {
+        likes,
+        totalCount: likesCount,
+        totalPages: Math.ceil(likesCount / size),
       }
     } catch (e) {
       throw new InternalServerErrorException(e.message)

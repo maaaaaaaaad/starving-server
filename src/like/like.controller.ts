@@ -1,4 +1,12 @@
-import { Body, Controller, Delete, Post, UseGuards } from '@nestjs/common'
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common'
 import { LikeService } from './like.service'
 import {
   ApiBearerAuth,
@@ -12,6 +20,7 @@ import { LikeRegisterInputDto } from './dtos/like.register.dto'
 import { User } from '../common/decorators/user.decorator'
 import { UserEntity } from '../auth/entities/user.entity'
 import { LikeDeleteInputDto } from './dtos/like.delete.dto'
+import { LikeListInputDto } from './dtos/like.list.dto'
 
 @Controller('like')
 @ApiTags('like')
@@ -29,6 +38,18 @@ export class LikeController {
     @Body() likeRegisterInputDto: LikeRegisterInputDto,
   ) {
     return await this.likeService.register(owner, likeRegisterInputDto)
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get()
+  @ApiBearerAuth('access-token')
+  @ApiConsumes('application/x-www-form-urlencoded')
+  @ApiOperation({ summary: 'Get my likes' })
+  async my(
+    @User() owner: UserEntity,
+    @Query() likeListInputDto: LikeListInputDto,
+  ) {
+    return await this.likeService.my(owner, likeListInputDto)
   }
 
   @UseGuards(JwtAuthGuard)
