@@ -57,6 +57,34 @@ describe('AuthService', () => {
     expect(service).toBeDefined()
   })
 
+  describe('checked fields', () => {
+    it('should fail check email exist', async () => {
+      userRepository.findOne.mockResolvedValue({
+        email: 'mad@gmail.com',
+      })
+      const result = await service.checkEmailExist({
+        email: 'mad@gmail.com',
+      })
+      expect(result).toMatchObject({
+        access: false,
+        message: 'Already to this email',
+      })
+    })
+
+    it('should fail check nickname exist', async () => {
+      userRepository.findOne.mockResolvedValue({
+        nickname: 'mad',
+      })
+      const result = await service.checkNicknameExist({
+        nickname: 'mad',
+      })
+      expect(result).toMatchObject({
+        access: false,
+        message: 'Already to this nickname',
+      })
+    })
+  })
+
   describe('register user account', () => {
     it('should fail if email already exists', async () => {
       userRepository.findOne.mockResolvedValue({
