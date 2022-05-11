@@ -1,7 +1,7 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { RecipeEntity } from './entities/recipe.entity'
-import { ILike, Repository } from 'typeorm'
+import { Connection, ILike, Repository } from 'typeorm'
 import { RecipeRegisterInputDto } from './dtos/recipe.register.dto'
 import { CategoryEntity } from './entities/category.entity'
 import { UserEntity } from '../auth/entities/user.entity'
@@ -23,6 +23,7 @@ export class RecipeService {
     private readonly recipe: Repository<RecipeEntity>,
     @InjectRepository(CategoryEntity)
     private readonly category: Repository<CategoryEntity>,
+    private readonly connection: Connection,
   ) {}
 
   async register(
@@ -36,28 +37,30 @@ export class RecipeService {
     }: RecipeRegisterInputDto,
   ) {
     try {
-      const recipe = await this.recipe.create({
-        title,
-        description,
-        mainText,
-        cookImages,
+      await this.connection.transaction(async (manager) => {
+        const recipe = await this.recipe.create({
+          title,
+          description,
+          mainText,
+          cookImages,
+        })
+        recipe.owner = owner
+        let categoryValue = await this.category.findOne({
+          where: {
+            values: category,
+          },
+        })
+        if (!categoryValue) {
+          categoryValue = await manager.save(
+            this.category.create({ values: category }),
+          )
+        }
+        recipe.category = categoryValue
+        await manager.save(recipe)
       })
-      recipe.owner = owner
-      let categoryValue = await this.category.findOne({
-        where: {
-          values: category,
-        },
-      })
-      if (!categoryValue) {
-        categoryValue = await this.category.save(
-          this.category.create({ values: category }),
-        )
-      }
-      recipe.category = categoryValue
-      await this.recipe.save(recipe)
       return {
         access: true,
-        message: `Success recipe ${recipe.title}`,
+        message: `Success recipe ${title}`,
       }
     } catch (e) {
       throw new InternalServerErrorException(e.message)

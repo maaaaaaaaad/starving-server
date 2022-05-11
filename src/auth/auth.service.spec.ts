@@ -1,18 +1,20 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { AuthService } from './auth.service'
-import { UserEntity } from './entities/user.entity'
+import { Social, UserEntity } from './entities/user.entity'
 import { getRepositoryToken } from '@nestjs/typeorm'
 import { PassportModule } from '@nestjs/passport'
 import { JwtModule, JwtService } from '@nestjs/jwt'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { Repository } from 'typeorm'
 import { UserRegisterInputDto } from './dtos/user.register.dto'
+import { UserLoginInputDto } from './dtos/user.login.dto'
 
 type MockRepository<T = any> = Partial<Record<keyof Repository<T>, jest.Mock>>
 
 describe('AuthService', () => {
   let service: AuthService
   let userRepository: MockRepository<UserEntity>
+  let jwtService: JwtService
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -52,6 +54,7 @@ describe('AuthService', () => {
 
     service = module.get<AuthService>(AuthService)
     userRepository = module.get(getRepositoryToken(UserEntity))
+    jwtService = module.get<JwtService>(JwtService)
   })
 
   it('should be defined', () => {
@@ -90,6 +93,7 @@ describe('AuthService', () => {
       const result = await service.checkNicknameExist({
         nickname: 'mad',
       })
+      expect(userRepository.findOne).toBeCalledTimes(1)
       expect(result).toMatchObject({
         access: false,
         message: 'Already to this nickname',
@@ -101,6 +105,7 @@ describe('AuthService', () => {
       const result = await service.checkNicknameExist({
         nickname: 'mad',
       })
+      expect(userRepository.findOne).toBeCalledTimes(1)
       expect(result).toMatchObject({
         access: true,
         message: 'Available this nickname',
@@ -122,6 +127,7 @@ describe('AuthService', () => {
         email: 'mad@gmail.com',
       })
       const result = await service.register(mockValueArgs)
+      expect(userRepository.findOne).toBeCalledTimes(1)
       expect(result).toMatchObject({
         access: false,
         message: 'Already to this user email',
@@ -141,6 +147,35 @@ describe('AuthService', () => {
       expect(result).toMatchObject({
         access: true,
         success: 'Success register user account',
+      })
+    })
+  })
+
+  describe('login', () => {
+    const loginArgs: UserLoginInputDto = {
+      email: '',
+      password: '',
+    }
+    it('should fail if email already exists', async () => {
+      userRepository.findOne.mockResolvedValue(null)
+      const result = await service.login(loginArgs)
+      expect(userRepository.findOne).toBeCalledTimes(1)
+      expect(userRepository.findOne).toHaveBeenCalledWith(expect.any(Object))
+      expect(result).toMatchObject({
+        access: false,
+        error: 'Not found this user',
+      })
+    })
+
+    it('should fail if the password is wrong', async () => {
+      const mockedUser = {
+        confirmPassword: jest.fn(() => Promise.resolve(false)),
+      }
+      userRepository.findOne.mockResolvedValue(mockedUser)
+      const result = await service.login(loginArgs)
+      expect(result).toMatchObject({
+        access: false,
+        error: 'No match password',
       })
     })
   })
