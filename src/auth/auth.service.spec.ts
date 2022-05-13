@@ -8,6 +8,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config'
 import { Repository } from 'typeorm'
 import { UserRegisterInputDto } from './dtos/user.register.dto'
 import { UserLoginInputDto } from './dtos/user.login.dto'
+import { UserUpdateInputDto } from './dtos/user.update.dto'
 
 type MockRepository<T = any> = Partial<Record<keyof Repository<T>, jest.Mock>>
 
@@ -64,50 +65,15 @@ describe('AuthService', () => {
       userRepository.findOne.mockResolvedValue({
         email: 'mad@gmail.com',
       })
-      const result = await service.checkEmailExist({
-        email: 'mad@gmail.com',
-      })
-      expect(result).toMatchObject({
-        access: false,
-        message: 'Already to this email',
-      })
-    })
-
-    it('should available email', async () => {
-      userRepository.findOne.mockResolvedValue(undefined)
-      const result = await service.checkEmailExist({
-        email: 'mad@gmail.com',
-      })
-      expect(result).toMatchObject({
-        access: true,
-        message: 'Available this email',
-      })
+      const result = await service.checkEmailExist('mad@gmail.com')
+      expect(result).toEqual(false)
     })
 
     it('should fail check nickname exist', async () => {
-      userRepository.findOne.mockResolvedValue({
-        nickname: 'mad',
-      })
-      const result = await service.checkNicknameExist({
-        nickname: 'mad',
-      })
+      userRepository.findOne.mockResolvedValue('mad')
+      const result = await service.checkNicknameExist('mad')
       expect(userRepository.findOne).toBeCalledTimes(1)
-      expect(result).toMatchObject({
-        access: false,
-        message: 'Already to this nickname',
-      })
-    })
-
-    it('should available nickname', async () => {
-      userRepository.findOne.mockResolvedValue(undefined)
-      const result = await service.checkNicknameExist({
-        nickname: 'mad',
-      })
-      expect(userRepository.findOne).toBeCalledTimes(1)
-      expect(result).toMatchObject({
-        access: true,
-        message: 'Available this nickname',
-      })
+      expect(result).toEqual(false)
     })
   })
 
@@ -119,18 +85,6 @@ describe('AuthService', () => {
       social: null,
       avatarImage: null,
     }
-
-    it('should fail if email already exists', async () => {
-      userRepository.findOne.mockResolvedValue({
-        email: 'mad@gmail.com',
-      })
-      const result = await service.register(mockValueArgs)
-      expect(userRepository.findOne).toBeCalledTimes(1)
-      expect(result).toMatchObject({
-        access: false,
-        message: 'Already to this user email',
-      })
-    })
 
     it('should register user account', async () => {
       userRepository.findOne.mockResolvedValue(undefined)
@@ -191,7 +145,9 @@ describe('AuthService', () => {
         token: 'mock-token',
       })
     })
+  })
 
+  describe('should find user', () => {
     it('should find user with using user primary key', async () => {
       userRepository.findOne.mockResolvedValue(1)
       const result = await service.findUserByPrimaryKey(1)
@@ -202,6 +158,27 @@ describe('AuthService', () => {
       userRepository.findOne.mockResolvedValue(null)
       const result = await service.findUserByPrimaryKey(1)
       expect(result).toEqual(null)
+    })
+  })
+
+  describe('should update user', () => {
+    const current = {
+      password: '12341234',
+      nickname: 'mad',
+    }
+    const updateInputDto: UserUpdateInputDto = {
+      password: 'qweqwe123123',
+      nickname: 'mad123123',
+    }
+
+    it('should not found user', async () => {
+      userRepository.findOne.mockResolvedValue(null)
+      const result = await service.update(1, current)
+      expect(userRepository.findOne).toHaveBeenCalledTimes(1)
+      expect(result).toMatchObject({
+        access: false,
+        message: 'Not found this user',
+      })
     })
   })
 })

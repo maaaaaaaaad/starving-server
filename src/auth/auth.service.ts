@@ -6,8 +6,6 @@ import { UserRegisterInputDto } from './dtos/user.register.dto'
 import { UserLoginInputDto } from './dtos/user.login.dto'
 import { JwtService } from '@nestjs/jwt'
 import { JwtPayloadType } from './jwt/jwt.payload.type'
-import { UserCheckEmailInputDto } from './dtos/user.check.email.dto'
-import { UserCheckNicknameInputDto } from './dtos/user.check.nickname.dto'
 import { UserUpdateInputDto } from './dtos/user.update.dto'
 
 @Injectable()
@@ -17,40 +15,22 @@ export class AuthService {
     private readonly userEntity: Repository<UserEntity>,
     private readonly jwtService: JwtService,
   ) {}
-  async checkEmailExist({ email }: UserCheckEmailInputDto) {
+  async checkEmailExist(email: string) {
     const emailExist = await this.userEntity.findOne({
       where: {
         email,
       },
     })
-    if (emailExist) {
-      return {
-        access: false,
-        message: 'Already to this email',
-      }
-    }
-    return {
-      access: true,
-      message: 'Available this email',
-    }
+    return !emailExist
   }
 
-  async checkNicknameExist({ nickname }: UserCheckNicknameInputDto) {
+  async checkNicknameExist(nickname: string) {
     const nicknameExist = await this.userEntity.findOne({
       where: {
         nickname,
       },
     })
-    if (nicknameExist) {
-      return {
-        access: false,
-        message: 'Already to this nickname',
-      }
-    }
-    return {
-      access: true,
-      message: 'Available this nickname',
-    }
+    return !nicknameExist
   }
 
   async register({
@@ -62,26 +42,18 @@ export class AuthService {
   }: UserRegisterInputDto) {
     try {
       if (!social) {
-        const userEmail = await this.userEntity.findOne({
-          where: {
-            email,
-          },
-        })
-        if (userEmail) {
+        const isEmail = await this.checkEmailExist(email)
+        if (!isEmail) {
           return {
             access: false,
-            message: 'Already to this user email',
+            message: 'This email already to exists',
           }
         }
-        const userNickname = await this.userEntity.findOne({
-          where: {
-            nickname,
-          },
-        })
-        if (userNickname) {
+        const isNickname = await this.checkNicknameExist(nickname)
+        if (!isNickname) {
           return {
             access: false,
-            message: 'Already to this user nickname',
+            message: 'This nickname already to exists',
           }
         }
         const user = this.userEntity.create({
