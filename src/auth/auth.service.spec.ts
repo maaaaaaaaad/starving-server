@@ -62,11 +62,15 @@ describe('AuthService', () => {
 
   describe('checked fields', () => {
     it('should fail check email exist', async () => {
-      userRepository.findOne.mockResolvedValue({
-        email: 'mad@gmail.com',
-      })
+      userRepository.findOne.mockResolvedValue('mad@gmail.com')
       const result = await service.checkEmailExist('mad@gmail.com')
       expect(result).toEqual(false)
+    })
+
+    it('should success check email exist', async () => {
+      userRepository.findOne.mockResolvedValue(null)
+      const result = await service.checkEmailExist('mad@gmail.com')
+      expect(result).toEqual(true)
     })
 
     it('should fail check nickname exist', async () => {
@@ -74,6 +78,12 @@ describe('AuthService', () => {
       const result = await service.checkNicknameExist('mad')
       expect(userRepository.findOne).toBeCalledTimes(1)
       expect(result).toEqual(false)
+    })
+
+    it('should success check nickname exist', async () => {
+      userRepository.findOne.mockResolvedValue(null)
+      const result = await service.checkEmailExist('mad')
+      expect(result).toEqual(true)
     })
   })
 
@@ -86,8 +96,21 @@ describe('AuthService', () => {
       avatarImage: null,
     }
 
+    it('should exists email', async () => {
+      userRepository.findOne.mockResolvedValue({
+        where: {
+          email: 'mad@gmail.com',
+        },
+      })
+      await service.checkEmailExist('mad@gmail.com')
+      const result = await service.register(mockValueArgs)
+      expect(result).toMatchObject({
+        access: false,
+        message: 'This email already to exists',
+      })
+    })
+
     it('should register user account', async () => {
-      userRepository.findOne.mockResolvedValue(undefined)
       userRepository.create.mockReturnValue(mockValueArgs)
       const result = await service.register(mockValueArgs)
       expect(userRepository.create).toBeCalledTimes(1)

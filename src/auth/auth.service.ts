@@ -15,7 +15,7 @@ export class AuthService {
     private readonly userEntity: Repository<UserEntity>,
     private readonly jwtService: JwtService,
   ) {}
-  async checkEmailExist(email: string) {
+  async checkEmailExist(email: string): Promise<boolean> {
     const emailExist = await this.userEntity.findOne({
       where: {
         email,
@@ -24,7 +24,7 @@ export class AuthService {
     return !emailExist
   }
 
-  async checkNicknameExist(nickname: string) {
+  async checkNicknameExist(nickname: string): Promise<boolean> {
     const nicknameExist = await this.userEntity.findOne({
       where: {
         nickname,
