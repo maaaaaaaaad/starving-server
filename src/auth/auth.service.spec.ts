@@ -191,5 +191,17 @@ describe('AuthService', () => {
         token: 'mock-token',
       })
     })
+
+    it('should find user with using user primary key', async () => {
+      userRepository.findOne.mockResolvedValue(1)
+      const result = await service.findUserByPrimaryKey(1)
+      expect(result).toEqual(1)
+    })
+
+    it('should not found user', async () => {
+      userRepository.findOne.mockResolvedValue(null)
+      const result = await service.findUserByPrimaryKey(1)
+      expect(result).toEqual(null)
+    })
   })
 })
