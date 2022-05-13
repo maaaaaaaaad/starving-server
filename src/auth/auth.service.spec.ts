@@ -203,5 +203,29 @@ describe('AuthService', () => {
         message: 'Not found this user',
       })
     })
+
+    it('should change password', async () => {
+      userRepository.findOne.mockResolvedValue({
+        password: updateInputDto.password,
+      })
+      const result = await service.update(1, updateInputDto)
+      expect(result).toMatchObject({
+        access: true,
+        message: 'Success update profile',
+        user: updateInputDto,
+      })
+    })
+
+    it('should change nickname', async () => {
+      userRepository.findOne.mockResolvedValue({
+        nickname: updateInputDto.nickname,
+      })
+      const result = await service.update(1, updateInputDto)
+      expect(result).toMatchObject({
+        access: true,
+        message: 'Success update profile',
+        user: updateInputDto,
+      })
+    })
   })
 })
