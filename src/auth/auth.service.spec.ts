@@ -228,4 +228,16 @@ describe('AuthService', () => {
       })
     })
   })
+
+  describe('should delete user account', () => {
+    it('should delete', async () => {
+      userRepository.delete(1)
+      const result = await service.delete(1)
+      expect(userRepository.delete).toHaveBeenCalledWith(1)
+      expect(result).toMatchObject({
+        access: true,
+        message: 'Delete this user account',
+      })
+    })
+  })
 })

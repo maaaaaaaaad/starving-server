@@ -210,9 +210,9 @@ export class AuthService {
     }
   }
 
-  async delete(user: UserEntity) {
+  async delete(pk: number) {
     try {
-      await this.userEntity.delete(user.pk)
+      await this.userEntity.delete(pk)
       return {
         access: true,
         message: 'Delete this user account',

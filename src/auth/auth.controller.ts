@@ -78,6 +78,6 @@ export class AuthController {
   @ApiOperation({ summary: 'Delete user account' })
   @ApiBearerAuth('access-token')
   async delete(@User() user: UserEntity) {
-    return await this.authService.delete(user)
+    return await this.authService.delete(user.pk)
   }
 }
