@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { AuthService } from './auth.service'
-import { Social, UserEntity } from './entities/user.entity'
+import { UserEntity } from './entities/user.entity'
 import { getRepositoryToken } from '@nestjs/typeorm'
 import { PassportModule } from '@nestjs/passport'
 import { JwtModule, JwtService } from '@nestjs/jwt'
@@ -14,7 +14,6 @@ type MockRepository<T = any> = Partial<Record<keyof Repository<T>, jest.Mock>>
 describe('AuthService', () => {
   let service: AuthService
   let userRepository: MockRepository<UserEntity>
-  let jwtService: JwtService
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -44,9 +43,9 @@ describe('AuthService', () => {
           },
         },
         {
-          provide: getRepositoryToken(JwtService),
+          provide: JwtService,
           useValue: {
-            sign: jest.fn(),
+            sign: jest.fn(() => 'mock-token'),
           },
         },
       ],
@@ -54,7 +53,6 @@ describe('AuthService', () => {
 
     service = module.get<AuthService>(AuthService)
     userRepository = module.get(getRepositoryToken(UserEntity))
-    jwtService = module.get<JwtService>(JwtService)
   })
 
   it('should be defined', () => {
@@ -176,6 +174,21 @@ describe('AuthService', () => {
       expect(result).toMatchObject({
         access: false,
         error: 'No match password',
+      })
+    })
+
+    it('should return token if the password is correct', async () => {
+      const mockedUser = {
+        id: 1,
+        email: 'mad@gmail.com',
+        confirmPassword: jest.fn(() => Promise.resolve(true)),
+      }
+      userRepository.findOne.mockResolvedValue(mockedUser)
+      const result = await service.login(loginArgs)
+      expect(result).toMatchObject({
+        access: true,
+        success: 'Success login',
+        token: 'mock-token',
       })
     })
   })

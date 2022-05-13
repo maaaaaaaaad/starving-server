@@ -168,10 +168,11 @@ export class AuthService {
         email: user.email,
         pk: user.pk,
       }
+      const token = this.jwtService.sign(payload)
       return {
         access: true,
         success: 'Success login',
-        token: this.jwtService.sign(payload),
+        token,
       }
     } catch (e) {
       throw new InternalServerErrorException(e.message)
