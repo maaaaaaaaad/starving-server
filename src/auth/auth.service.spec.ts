@@ -9,6 +9,7 @@ import { Repository } from 'typeorm'
 import { UserRegisterInputDto } from './dtos/user.register.dto'
 import { UserLoginInputDto } from './dtos/user.login.dto'
 import { UserUpdateInputDto } from './dtos/user.update.dto'
+import { InternalServerErrorException } from '@nestjs/common'
 
 type MockRepository<T = any> = Partial<Record<keyof Repository<T>, jest.Mock>>
 
@@ -168,6 +169,15 @@ describe('AuthService', () => {
         token: 'mock-token',
       })
     })
+
+    it('should error', async () => {
+      try {
+        userRepository.findOne.mockRejectedValue('')
+        await service.login(loginArgs)
+      } catch (e) {
+        expect(e).toBeInstanceOf(InternalServerErrorException)
+      }
+    })
   })
 
   describe('should find user', () => {
@@ -206,7 +216,7 @@ describe('AuthService', () => {
 
     it('should change password', async () => {
       userRepository.findOne.mockResolvedValue({
-        password: updateInputDto.password,
+        password: 'as',
       })
       const result = await service.update(1, updateInputDto)
       expect(result).toMatchObject({
@@ -218,9 +228,10 @@ describe('AuthService', () => {
 
     it('should change nickname', async () => {
       userRepository.findOne.mockResolvedValue({
-        nickname: updateInputDto.nickname,
+        nickname: 'as',
       })
       const result = await service.update(1, updateInputDto)
+      expect(userRepository.save).toHaveBeenCalledTimes(1)
       expect(result).toMatchObject({
         access: true,
         message: 'Success update profile',
