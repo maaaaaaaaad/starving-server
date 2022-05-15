@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, OneToMany } from 'typeorm'
+import { Column, Entity, ManyToOne, OneToMany, RelationId } from 'typeorm'
 import { CoreEntity } from '../../common/entities/core.entity'
 import { IsNotEmpty, IsString } from 'class-validator'
 import { ApiProperty } from '@nestjs/swagger'
@@ -73,4 +73,7 @@ export class RecipeEntity extends CoreEntity {
 
   @Column({ name: 'LIKES_COUNT', type: Number, nullable: true, default: 0 })
   likesCount?: number
+
+  @RelationId((recipe: RecipeEntity) => recipe.owner)
+  ownerId: number
 }

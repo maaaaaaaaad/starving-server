@@ -15,6 +15,10 @@ import {
   RecipeSearchInputDto,
   RecipeSearchOutputDto,
 } from './dtos/recipe.search.dto'
+import {
+  DeleteRecipeImageInputDto,
+  DeleteRecipeImageOutputDto,
+} from '../upload/dtos/delete.recipe.image.dto'
 
 @Injectable()
 export class RecipeService {
@@ -258,6 +262,54 @@ export class RecipeService {
         totalCount: recipesCount,
         totalPages: Math.ceil(recipesCount / size),
         recipes,
+      }
+    } catch (e) {
+      throw new InternalServerErrorException(e.message)
+    }
+  }
+
+  async deleteImage(
+    { pk: ownerId }: UserEntity,
+    { pk, image }: DeleteRecipeImageInputDto,
+  ): Promise<DeleteRecipeImageOutputDto> {
+    try {
+      const recipe = await this.recipe.findOne({
+        where: {
+          pk,
+        },
+      })
+      if (!recipe) {
+        return {
+          access: false,
+          message: 'Not found recipe',
+        }
+      }
+      if (recipe.ownerId !== ownerId) {
+        return {
+          access: false,
+          message: 'Owner do not match',
+        }
+      }
+      if (!recipe.cookImages.find((current) => current === image)) {
+        return {
+          access: false,
+          message: 'Not found image url',
+        }
+      }
+
+      if (recipe.cookImages.length === 1) {
+        return {
+          access: false,
+          message: 'There is only one image, it cannot be deleted.',
+        }
+      }
+      recipe.cookImages = recipe.cookImages.filter(
+        (current) => current !== image,
+      )
+      await this.recipe.save(recipe)
+      return {
+        access: true,
+        message: `Delete ${image}`,
       }
     } catch (e) {
       throw new InternalServerErrorException(e.message)
