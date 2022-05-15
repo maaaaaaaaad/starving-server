@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Param,
   Post,
   Query,
   UseGuards,
@@ -13,6 +14,7 @@ import {
   ApiBody,
   ApiConsumes,
   ApiOperation,
+  ApiParam,
   ApiTags,
 } from '@nestjs/swagger'
 import { JwtAuthGuard } from '../auth/jwt/jwt-auth.guard'
@@ -21,6 +23,7 @@ import { User } from '../common/decorators/user.decorator'
 import { UserEntity } from '../auth/entities/user.entity'
 import { LikeDeleteInputDto } from './dtos/like.delete.dto'
 import { LikeListInputDto } from './dtos/like.list.dto'
+import { LikeGetOneInputDto } from './dtos/like.get.one.dto'
 
 @Controller('like')
 @ApiTags('like')
@@ -38,6 +41,18 @@ export class LikeController {
     @Body() likeRegisterInputDto: LikeRegisterInputDto,
   ) {
     return await this.likeService.register(owner, likeRegisterInputDto)
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get(':recipePk')
+  @ApiBearerAuth('access-token')
+  @ApiConsumes('application/x-www-form-urlencoded')
+  @ApiOperation({ summary: 'Get one my like' })
+  async getOne(
+    @User() owner: UserEntity,
+    @Param() likeGetOneInputDto: LikeGetOneInputDto,
+  ) {
+    return await this.likeService.getOne(owner, likeGetOneInputDto)
   }
 
   @UseGuards(JwtAuthGuard)

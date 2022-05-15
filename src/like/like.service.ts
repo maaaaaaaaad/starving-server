@@ -9,6 +9,10 @@ import {
 import { UserEntity } from '../auth/entities/user.entity'
 import { RecipeEntity } from '../recipe/entities/recipe.entity'
 import { LikeListInputDto, LikeListOutputDto } from './dtos/like.list.dto'
+import {
+  LikeGetOneInputDto,
+  LikeGetOneOutputDto,
+} from './dtos/like.get.one.dto'
 
 @Injectable()
 export class LikeService {
@@ -60,6 +64,37 @@ export class LikeService {
       return {
         access: true,
         message: 'Success add like',
+      }
+    } catch (e) {
+      throw new InternalServerErrorException(e.message)
+    }
+  }
+
+  async getOne(
+    owner: UserEntity,
+    { recipePk }: LikeGetOneInputDto,
+  ): Promise<LikeGetOneOutputDto> {
+    try {
+      const like = await this.likeEntity.findOne({
+        relations: ['owner', 'recipe'],
+        where: {
+          owner: {
+            pk: owner.pk,
+          },
+          recipe: {
+            pk: recipePk,
+          },
+        },
+      })
+      if (!like) {
+        return {
+          access: false,
+          message: 'Not found like',
+        }
+      }
+      return {
+        access: true,
+        like,
       }
     } catch (e) {
       throw new InternalServerErrorException(e.message)
