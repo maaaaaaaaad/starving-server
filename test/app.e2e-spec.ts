@@ -7,6 +7,7 @@ import { UserLoginInputDto } from '../src/auth/dtos/user.login.dto'
 
 describe('AppController (e2e)', () => {
   let app: INestApplication
+  let token: string
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -51,7 +52,12 @@ describe('AppController (e2e)', () => {
       }
       const url = '/auth/login'
       it('should success', async () => {
-        return request(app.getHttpServer()).post(url).send(dto).expect(201)
+        const res = await request(app.getHttpServer())
+          .post(url)
+          .send(dto)
+          .expect(201)
+        token = res.body.token
+        expect(token).toEqual(expect.any(String))
       })
 
       it('should fail if the not found user', async () => {
@@ -63,6 +69,15 @@ describe('AppController (e2e)', () => {
           access: false,
           error: 'Not found this user',
         })
+      })
+    })
+
+    describe('user', () => {
+      it('should get current user', async () => {
+        const res = await request(app.getHttpServer())
+          .get('/auth')
+          .set('Authorization', `Bearer ${token}`)
+        expect(res.body).toMatchObject({})
       })
     })
   })
