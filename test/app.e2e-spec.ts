@@ -80,6 +80,17 @@ describe('AppController (e2e)', () => {
           error: 'Not found this user',
         })
       })
+
+      it('should fail if the wrong password', async () => {
+        const res = await request(app.getHttpServer())
+          .post(url)
+          .send({ email: 'mad@gmail.com', password: 'weofij123123' })
+          .expect(201)
+        expect(res.body).toMatchObject({
+          access: false,
+          error: 'No match password',
+        })
+      })
     })
 
     describe('user', () => {
