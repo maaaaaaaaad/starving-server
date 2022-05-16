@@ -19,6 +19,16 @@ describe('AppController (e2e)', () => {
     await app.init()
   })
 
+  afterAll(async () => {
+    const res = await request(app.getHttpServer())
+      .delete('/auth')
+      .set('Authorization', `Bearer ${token}`)
+    expect(res.body).toMatchObject({
+      access: true,
+      message: 'Delete this user account',
+    })
+  })
+
   describe('auth', () => {
     describe('register', () => {
       const dto: UserRegisterInputDto = {
@@ -78,6 +88,16 @@ describe('AppController (e2e)', () => {
           .get('/auth')
           .set('Authorization', `Bearer ${token}`)
         expect(res.body).toMatchObject({})
+      })
+
+      it('should fail get current user if the wrong token', async () => {
+        const res = await request(app.getHttpServer())
+          .get('/auth')
+          .set('Authorization', `Bearer MockToken`)
+        expect(res.body).toMatchObject({
+          statusCode: 401,
+          message: 'Unauthorized',
+        })
       })
     })
   })
