@@ -4,6 +4,7 @@ import * as request from 'supertest'
 import { AppModule } from '../src/app.module'
 import { UserRegisterInputDto } from '../src/auth/dtos/user.register.dto'
 import { UserLoginInputDto } from '../src/auth/dtos/user.login.dto'
+import { UserUpdateInputDto } from '../src/auth/dtos/user.update.dto'
 
 describe('AppController (e2e)', () => {
   let app: INestApplication
@@ -104,6 +105,35 @@ describe('AppController (e2e)', () => {
       it('should fail get current user if the wrong token', async () => {
         const res = await request(app.getHttpServer())
           .get('/auth')
+          .set('Authorization', `Bearer MockToken`)
+        expect(res.body).toMatchObject({
+          statusCode: 401,
+          message: 'Unauthorized',
+        })
+      })
+    })
+
+    describe('update', () => {
+      const userUpdateInputDto: UserUpdateInputDto = {
+        nickname: 'maaaaaaad1',
+        password: 'soejfsoeijf123123',
+      }
+      it('should update', async () => {
+        const res = await request(app.getHttpServer())
+          .patch('/auth')
+          .send(userUpdateInputDto)
+          .set('Authorization', `Bearer ${token}`)
+        expect(res.body).toMatchObject({
+          access: true,
+          message: 'Success update profile',
+          user: expect.any(Object),
+        })
+      })
+
+      it('should fail update not a token', async () => {
+        const res = await request(app.getHttpServer())
+          .patch('/auth')
+          .send(userUpdateInputDto)
           .set('Authorization', `Bearer MockToken`)
         expect(res.body).toMatchObject({
           statusCode: 401,
