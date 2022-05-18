@@ -35,13 +35,20 @@ describe('AppController (e2e)', () => {
       const dto: UserRegisterInputDto = {
         email: 'mad@gmail.com',
         password: 'abcabc123123',
-        nickname: 'madmad',
+        nickname: 'mad',
         social: null,
         avatarImage: null,
       }
       const url = '/auth/register'
       it('should success', async () => {
-        return request(app.getHttpServer()).post(url).send(dto).expect(201)
+        const res = await request(app.getHttpServer())
+          .post(url)
+          .send(dto)
+          .expect(201)
+        expect(res.body).toMatchObject({
+          access: true,
+          success: 'Success register user account',
+        })
       })
 
       it('should fail if the email exists', async () => {
@@ -115,13 +122,37 @@ describe('AppController (e2e)', () => {
 
     describe('update', () => {
       const userUpdateInputDto: UserUpdateInputDto = {
-        nickname: 'maaaaaaad1',
+        nickname: 'TEST_MAD',
         password: 'soejfsoeijf123123',
       }
       it('should update', async () => {
         const res = await request(app.getHttpServer())
           .patch('/auth')
           .send(userUpdateInputDto)
+          .set('Authorization', `Bearer ${token}`)
+        expect(res.body).toMatchObject({
+          access: true,
+          message: 'Success update profile',
+          user: expect.any(Object),
+        })
+      })
+
+      it('should update the only nickname', async () => {
+        const res = await request(app.getHttpServer())
+          .patch('/auth')
+          .send(userUpdateInputDto.nickname)
+          .set('Authorization', `Bearer ${token}`)
+        expect(res.body).toMatchObject({
+          access: true,
+          message: 'Success update profile',
+          user: expect.any(Object),
+        })
+      })
+
+      it('should update the only password', async () => {
+        const res = await request(app.getHttpServer())
+          .patch('/auth')
+          .send(userUpdateInputDto.password)
           .set('Authorization', `Bearer ${token}`)
         expect(res.body).toMatchObject({
           access: true,
