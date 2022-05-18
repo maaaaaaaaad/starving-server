@@ -1,4 +1,9 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common'
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { RecipeEntity } from './entities/recipe.entity'
 import { Connection, ILike, Repository } from 'typeorm'
@@ -40,34 +45,43 @@ export class RecipeService {
       category,
     }: RecipeRegisterInputDto,
   ) {
+    const queryRunner = await this.connection.createQueryRunner()
+    await queryRunner.connect()
+    await queryRunner.startTransaction()
     try {
-      await this.connection.transaction(async (manager) => {
-        const recipe = await this.recipe.create({
+      const recipe = await queryRunner.manager
+        .getRepository(RecipeEntity)
+        .create({
           title,
           description,
           mainText,
           cookImages,
         })
-        recipe.owner = owner
-        let categoryValue = await this.category.findOne({
+      recipe.owner = owner
+      let categoryValue = await queryRunner.manager
+        .getRepository(CategoryEntity)
+        .findOne({
           where: {
             values: category,
           },
         })
-        if (!categoryValue) {
-          categoryValue = await manager.save(
-            this.category.create({ values: category }),
-          )
-        }
-        recipe.category = categoryValue
-        await manager.save(recipe)
-      })
+      if (!categoryValue) {
+        categoryValue = await queryRunner.manager
+          .getRepository(CategoryEntity)
+          .save({ values: category })
+      }
+      recipe.category = categoryValue
+      await queryRunner.manager.getRepository(RecipeEntity).save(recipe)
+      await queryRunner.commitTransaction()
       return {
         access: true,
         message: `Success recipe ${title}`,
       }
     } catch (e) {
+      await queryRunner.rollbackTransaction()
       throw new InternalServerErrorException(e.message)
+    } finally {
+      await queryRunner.release()
     }
   }
 
