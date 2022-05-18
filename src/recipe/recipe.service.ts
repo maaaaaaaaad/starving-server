@@ -1,9 +1,4 @@
-import {
-  HttpException,
-  HttpStatus,
-  Injectable,
-  InternalServerErrorException,
-} from '@nestjs/common'
+import { Injectable, InternalServerErrorException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { RecipeEntity } from './entities/recipe.entity'
 import { Connection, ILike, Repository } from 'typeorm'
@@ -45,7 +40,7 @@ export class RecipeService {
       category,
     }: RecipeRegisterInputDto,
   ) {
-    const queryRunner = await this.connection.createQueryRunner()
+    const queryRunner = this.connection.createQueryRunner()
     await queryRunner.connect()
     await queryRunner.startTransaction()
     try {

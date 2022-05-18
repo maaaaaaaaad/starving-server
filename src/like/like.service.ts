@@ -28,45 +28,52 @@ export class LikeService {
     owner: UserEntity,
     { recipePk }: LikeRegisterInputDto,
   ): Promise<LikeRegisterOutputDto> {
-    try {
-      let like = await this.likeEntity.findOne({
-        relations: ['owner', 'recipe'],
-        where: {
-          owner: {
-            pk: owner.pk,
-          },
-          recipe: {
-            pk: recipePk,
-          },
+    const queryRunner = this.connection.createQueryRunner()
+    await queryRunner.connect()
+    await queryRunner.startTransaction()
+    let like = await this.likeEntity.findOne({
+      relations: ['owner', 'recipe'],
+      where: {
+        owner: {
+          pk: owner.pk,
         },
-      })
-      if (like) {
-        return {
-          access: false,
-          message: 'Like already to taken',
-        }
+        recipe: {
+          pk: recipePk,
+        },
+      },
+    })
+    if (like) {
+      return {
+        access: false,
+        message: 'Like already to taken',
       }
-      const recipe = await this.recipeEntity.findOne({
-        where: { pk: recipePk },
-      })
-      if (!recipe) {
-        return {
-          access: false,
-          message: 'Not found recipe',
-        }
+    }
+    const recipe = await this.recipeEntity.findOne({
+      where: { pk: recipePk },
+    })
+    if (!recipe) {
+      return {
+        access: false,
+        message: 'Not found recipe',
       }
-      await this.connection.transaction(async (manager) => {
-        like = await this.likeEntity.create({ owner, recipe })
-        recipe.likesCount += 1
-        await manager.save(recipe)
-        await manager.save(like)
-      })
+    }
+    try {
+      like = await queryRunner.manager
+        .getRepository(LikeEntity)
+        .create({ owner, recipe })
+      recipe.likesCount += 1
+      await queryRunner.manager.getRepository(RecipeEntity).save(recipe)
+      await queryRunner.manager.getRepository(LikeEntity).save(like)
+      await queryRunner.commitTransaction()
       return {
         access: true,
         message: 'Success add like',
       }
     } catch (e) {
+      await queryRunner.rollbackTransaction()
       throw new InternalServerErrorException(e.message)
+    } finally {
+      await queryRunner.release()
     }
   }
 
