@@ -62,8 +62,10 @@ export class LikeService {
         .getRepository(LikeEntity)
         .create({ owner, recipe })
       recipe.likesCount += 1
-      await queryRunner.manager.getRepository(RecipeEntity).save(recipe)
-      await queryRunner.manager.getRepository(LikeEntity).save(like)
+      await Promise.all([
+        queryRunner.manager.getRepository(RecipeEntity).save(recipe),
+        queryRunner.manager.getRepository(LikeEntity).save(like),
+      ])
       await queryRunner.commitTransaction()
       return {
         access: true,
@@ -140,35 +142,44 @@ export class LikeService {
     owner: UserEntity,
     { recipePk }: LikeRegisterInputDto,
   ): Promise<LikeRegisterOutputDto> {
-    try {
-      const like = await this.likeEntity.findOne({
-        where: {
-          owner: {
-            pk: owner.pk,
-          },
-          recipe: {
-            pk: recipePk,
-          },
+    const queryRunner = this.connection.createQueryRunner()
+    await queryRunner.connect()
+    await queryRunner.startTransaction()
+    const like = await this.likeEntity.findOne({
+      where: {
+        owner: {
+          pk: owner.pk,
         },
-      })
-      if (!like) {
-        return {
-          access: false,
-          message: 'Not found like',
-        }
+        recipe: {
+          pk: recipePk,
+        },
+      },
+    })
+    if (!like) {
+      return {
+        access: false,
+        message: 'Not found like',
       }
-      const recipe = await this.recipeEntity.findOne({
-        where: { pk: recipePk },
-      })
+    }
+    const recipe = await this.recipeEntity.findOne({
+      where: { pk: recipePk },
+    })
+    try {
       recipe.likesCount -= 1
-      await this.recipeEntity.save(recipe)
-      await this.likeEntity.delete(like.pk)
+      await Promise.all([
+        queryRunner.manager.getRepository(RecipeEntity).save(recipe),
+        queryRunner.manager.getRepository(LikeEntity).delete(like.pk),
+      ])
+      await queryRunner.commitTransaction()
       return {
         access: true,
         message: 'Success delete like',
       }
     } catch (e) {
+      await queryRunner.rollbackTransaction()
       throw new InternalServerErrorException(e.message)
+    } finally {
+      await queryRunner.release()
     }
   }
 }
