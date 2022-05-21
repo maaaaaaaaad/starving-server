@@ -31,17 +31,14 @@ export class LikeService {
     const queryRunner = this.connection.createQueryRunner()
     await queryRunner.connect()
     await queryRunner.startTransaction()
-    let like = await this.likeEntity.findOne({
-      relations: ['owner', 'recipe'],
-      where: {
-        owner: {
-          pk: owner.pk,
-        },
-        recipe: {
-          pk: recipePk,
-        },
-      },
-    })
+    let like = await this.likeEntity
+      .createQueryBuilder('like')
+      .innerJoinAndSelect('like.owner', 'owner')
+      .innerJoinAndSelect('like.recipe', 'recipe')
+      .select(['like.pk', 'owner.pk', 'recipe.pk'])
+      .where('owner.pk = :ownerPk', { ownerPk: owner.pk })
+      .andWhere('recipe.pk = :recipePk', { recipePk })
+      .getOne()
     if (like) {
       return {
         access: false,
