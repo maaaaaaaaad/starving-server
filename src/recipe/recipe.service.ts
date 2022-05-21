@@ -44,14 +44,12 @@ export class RecipeService {
     await queryRunner.connect()
     await queryRunner.startTransaction()
     try {
-      const recipe = await queryRunner.manager
-        .getRepository(RecipeEntity)
-        .create({
-          title,
-          description,
-          mainText,
-          cookImages,
-        })
+      const recipe = queryRunner.manager.getRepository(RecipeEntity).create({
+        title,
+        description,
+        mainText,
+        cookImages,
+      })
       recipe.owner = owner
       let categoryValue = await queryRunner.manager
         .getRepository(CategoryEntity)

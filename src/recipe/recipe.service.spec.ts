@@ -5,8 +5,12 @@ import { RecipeEntity } from './entities/recipe.entity'
 import { CategoryEntity } from './entities/category.entity'
 import { Connection } from 'typeorm'
 
-describe('RecipeService', () => {
-  let service: RecipeService
+class MockRecipeRepository {}
+class MockCategoryRepository {}
+
+describe('recipe service', () => {
+  let recipeService: RecipeService
+  let connection: Connection
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -14,37 +18,33 @@ describe('RecipeService', () => {
         RecipeService,
         {
           provide: getRepositoryToken(RecipeEntity),
-          useValue: {
-            findOne: jest.fn(),
-            save: jest.fn(),
-            create: jest.fn(),
-            delete: jest.fn(),
-          },
+          useClass: MockRecipeRepository,
         },
         {
           provide: getRepositoryToken(CategoryEntity),
-          useValue: {
-            findOne: jest.fn(),
-            save: jest.fn(),
-            create: jest.fn(),
-            delete: jest.fn(),
-          },
+          useClass: MockCategoryRepository,
         },
         {
           provide: Connection,
           useValue: {
-            findOne: jest.fn(),
-            save: jest.fn(),
-            create: jest.fn(),
-            delete: jest.fn(),
+            createQueryRunner: jest.fn(() => ({
+              connect: jest.fn(),
+              startTransaction: jest.fn(),
+            })),
           },
         },
       ],
     }).compile()
-    service = module.get<RecipeService>(RecipeService)
+
+    recipeService = module.get<RecipeService>(RecipeService)
+    connection = module.get<Connection>(Connection)
   })
 
-  it('should be defined', () => {
-    expect(service).toBeDefined()
+  it('should be defined recipe service', () => {
+    expect(recipeService).toBeDefined()
+  })
+
+  it('should be defined connection', () => {
+    expect(connection).toBeDefined()
   })
 })
