@@ -30,9 +30,9 @@ export class LikeService {
   ): Promise<LikeRegisterOutputDto> {
     let like = await this.likeEntity
       .createQueryBuilder('like')
-      .leftJoin('like.owner', 'owner')
-      .leftJoin('like.recipe', 'recipe')
-      .select(['like.pk', 'owner.pk', 'recipe.pk'])
+      .innerJoin('like.owner', 'owner')
+      .innerJoin('like.recipe', 'recipe')
+      .select(['like.pk'])
       .where('owner.pk = :ownerPk', { ownerPk: owner.pk })
       .andWhere('recipe.pk = :recipePk', { recipePk })
       .getOne()
@@ -82,8 +82,8 @@ export class LikeService {
   ): Promise<LikeGetOneOutputDto> {
     const like = await this.likeEntity
       .createQueryBuilder('like')
-      .leftJoin('like.owner', 'owner')
-      .leftJoin('like.recipe', 'recipe')
+      .innerJoin('like.owner', 'owner')
+      .innerJoin('like.recipe', 'recipe')
       .where('owner.pk = :ownerPk', { ownerPk: owner.pk })
       .andWhere('recipe.pk = :recipePk', { recipePk })
       .select(['like.pk', 'owner.pk', 'recipe.pk'])
