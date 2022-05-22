@@ -80,24 +80,21 @@ export class LikeService {
     owner: UserEntity,
     { recipePk }: LikeGetOneInputDto,
   ): Promise<LikeGetOneOutputDto> {
-    try {
-      const like = await this.likeEntity.findOne({
-        relations: ['owner', 'recipe'],
-        where: {
-          owner: {
-            pk: owner.pk,
-          },
-          recipe: {
-            pk: recipePk,
-          },
-        },
-      })
-      if (!like) {
-        return {
-          access: false,
-          message: 'Not found like',
-        }
+    const like = await this.likeEntity
+      .createQueryBuilder('like')
+      .leftJoin('like.owner', 'owner')
+      .leftJoin('like.recipe', 'recipe')
+      .where('owner.pk = :ownerPk', { ownerPk: owner.pk })
+      .andWhere('recipe.pk = :recipePk', { recipePk })
+      .select(['like.pk', 'owner.pk', 'recipe.pk'])
+      .getOne()
+    if (!like) {
+      return {
+        access: false,
+        message: 'Not found like',
       }
+    }
+    try {
       return {
         access: true,
         like,
