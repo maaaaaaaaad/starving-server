@@ -136,28 +136,24 @@ export class LikeService {
     owner: UserEntity,
     { recipePk }: LikeRegisterInputDto,
   ): Promise<LikeRegisterOutputDto> {
-    const queryRunner = this.connection.createQueryRunner()
-    await queryRunner.connect()
-    await queryRunner.startTransaction()
-    const like = await this.likeEntity.findOne({
-      where: {
-        owner: {
-          pk: owner.pk,
-        },
-        recipe: {
-          pk: recipePk,
-        },
-      },
-    })
+    const like = await this.likeEntity
+      .createQueryBuilder('like')
+      .innerJoin('like.owner', 'owner')
+      .innerJoin('like.recipe', 'recipe')
+      .where('owner.pk = :ownerPk', { ownerPk: owner.pk })
+      .andWhere('recipe.pk = :recipePk', { recipePk })
+      .select(['like.pk'])
+      .getOne()
     if (!like) {
       return {
         access: false,
         message: 'Not found like',
       }
     }
-    const recipe = await this.recipeEntity.findOne({
-      where: { pk: recipePk },
-    })
+    const recipe = await this.recipeEntity.findOne({ where: { pk: recipePk } })
+    const queryRunner = this.connection.createQueryRunner()
+    await queryRunner.connect()
+    await queryRunner.startTransaction()
     try {
       recipe.likesCount -= 1
       await Promise.all([
