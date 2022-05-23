@@ -1,8 +1,10 @@
 import {
   Body,
+  CACHE_MANAGER,
   Controller,
   Delete,
   Get,
+  Inject,
   Patch,
   Post,
   UseGuards,
@@ -21,11 +23,15 @@ import { JwtAuthGuard } from './jwt/jwt-auth.guard'
 import { User } from '../common/decorators/user.decorator'
 import { UserEntity } from './entities/user.entity'
 import { UserUpdateInputDto } from './dtos/user.update.dto'
+import { Cache } from 'cache-manager'
 
 @Controller('auth')
 @ApiTags('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    @Inject(CACHE_MANAGER) private readonly cacheManger: Cache,
+  ) {}
 
   @Post('register')
   @ApiConsumes('application/x-www-form-urlencoded')
@@ -79,5 +85,25 @@ export class AuthController {
   @ApiBearerAuth('access-token')
   async delete(@User() user: UserEntity) {
     return await this.authService.delete(user.pk)
+  }
+
+  @Get('cache')
+  @ApiOperation({ summary: 'Test Cache' })
+  async test() {
+    const item = await this.cacheManger.get('title')
+    if (item) {
+      return {
+        cache: true,
+        item,
+      }
+    }
+    const mockEmail = {
+      email: 'test@gmail.com',
+    }
+    await this.cacheManger.set('title', mockEmail)
+    return {
+      cache: false,
+      mockEmail,
+    }
   }
 }
