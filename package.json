@@ -23,9 +23,7 @@
     "typeorm:create": "npm run typeorm migration:create -- -n",
     "typeorm:generate": "npm run typeorm migration:generate -- -n",
     "typeorm:run": "npm run typeorm migration:run",
-    "typeorm:revert": "npm run typeorm migration:revert",
-    "prestart:prod": "rimraf dist && npm run build",
-    "web": "npm run start:prod"
+    "typeorm:revert": "npm run typeorm migration:revert"
   },
   "dependencies": {
     "@nestjs/common": "^7.6.15",
