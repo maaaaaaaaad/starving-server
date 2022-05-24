@@ -61,9 +61,7 @@ export class RecipeController {
     if (cookImages) {
       const path: string[] = []
       for (const image of cookImages) {
-        path.push(
-          `${process.env.HOST}:${process.env.PORT}/media/recipe-images/${image.filename}`,
-        )
+        path.push(`${process.env.HOST}/media/recipe-images/${image.filename}`)
       }
       recipeRegisterInputDto.cookImages = [...path]
       return await this.recipeService.register(owner, recipeRegisterInputDto)
@@ -119,9 +117,7 @@ export class RecipeController {
     if (cookImages) {
       const path: string[] = []
       for (const image of cookImages) {
-        path.push(
-          `${process.env.HOST}:${process.env.PORT}/media/recipe-images/${image.filename}`,
-        )
+        path.push(`${process.env.HOST}/media/recipe-images/${image.filename}`)
       }
       recipeUpdateInputDto.cookImages = [...path]
       return await this.recipeService.update(owner, recipeUpdateInputDto)
