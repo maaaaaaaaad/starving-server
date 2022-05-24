@@ -14,7 +14,6 @@ import {
   ApiBody,
   ApiConsumes,
   ApiOperation,
-  ApiParam,
   ApiTags,
 } from '@nestjs/swagger'
 import { JwtAuthGuard } from '../auth/jwt/jwt-auth.guard'

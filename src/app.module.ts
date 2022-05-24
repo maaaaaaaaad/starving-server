@@ -1,4 +1,4 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common'
+import { Global, MiddlewareConsumer, Module, NestModule } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import * as Joi from 'joi'
 import * as ormconfig from './typeorm.config'
@@ -10,7 +10,9 @@ import { RecipeModule } from './recipe/recipe.module'
 import { CommentModule } from './comment/comment.module'
 import { LikeModule } from './like/like.module'
 import { ThrottlerModule } from '@nestjs/throttler'
+import { RedisModule } from './redis/redis.module'
 
+@Global()
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -32,6 +34,8 @@ import { ThrottlerModule } from '@nestjs/throttler'
         JWT_SECRET_KEY: Joi.string().required(),
         THROTTLER_TTL: Joi.number().required(),
         THROTTLER_LIMIT: Joi.number().required(),
+        REDIS_HOST: Joi.string().required(),
+        REDIS_PORT: Joi.number().required(),
       }),
     }),
     ThrottlerModule.forRootAsync({
@@ -48,6 +52,7 @@ import { ThrottlerModule } from '@nestjs/throttler'
     RecipeModule,
     CommentModule,
     LikeModule,
+    RedisModule,
   ],
   controllers: [],
   providers: [],
