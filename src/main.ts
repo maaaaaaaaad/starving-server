@@ -11,8 +11,7 @@ import * as expressBasicAuth from 'express-basic-auth'
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule)
   app.enableCors({
-    origin: '*',
-    allowedHeaders: '*',
+    origin: 'http://localhost:3000',
     credentials: true,
   })
   const port = process.env.PORT
