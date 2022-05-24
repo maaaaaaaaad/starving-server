@@ -21,7 +21,7 @@ import { JwtAuthGuard } from './jwt/jwt-auth.guard'
 import { User } from '../common/decorators/user.decorator'
 import { UserEntity } from './entities/user.entity'
 import { UserUpdateInputDto } from './dtos/user.update.dto'
-import { ThrottlerGuard } from '@nestjs/throttler'
+import { SkipThrottle, ThrottlerGuard } from '@nestjs/throttler'
 import { RedisService } from '../redis/redis.service'
 
 @UseGuards(ThrottlerGuard)
@@ -53,6 +53,7 @@ export class AuthController {
     return await this.authService.login(userLoginInputDto)
   }
 
+  @SkipThrottle()
   @UseGuards(JwtAuthGuard)
   @Get()
   @ApiConsumes('application/x-www-form-urlencoded')
