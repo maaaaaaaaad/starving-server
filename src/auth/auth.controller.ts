@@ -61,7 +61,8 @@ export class AuthController {
   })
   @ApiBearerAuth('access-token')
   async profile(@User() user: UserEntity) {
-    return await this.redisService.currentUser(user)
+    // return await this.redisService.currentUser(user)
+    return user
   }
 
   @UseGuards(JwtAuthGuard)
