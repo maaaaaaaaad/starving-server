@@ -36,7 +36,11 @@ async function bootstrap() {
   SwaggerModule.setup('api', app, document)
 
   app.use(helmet())
-  app.enableCors()
+  app.enableCors({
+    origin: true,
+    allowedHeaders: '*',
+    credentials: true,
+  })
   app.useStaticAssets(path.join(__dirname, './common', 'files'), {
     prefix: '/media',
   })
