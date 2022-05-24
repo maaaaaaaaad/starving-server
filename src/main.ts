@@ -6,6 +6,7 @@ import { UndefinedInterceptor } from './common/interceptors/undefined.intercepto
 import * as path from 'path'
 import { NestExpressApplication } from '@nestjs/platform-express'
 import helmet from 'helmet'
+import * as expressBasicAuth from 'express-basic-auth'
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule)
@@ -13,6 +14,14 @@ async function bootstrap() {
   app.setGlobalPrefix('api')
   app.useGlobalFilters(new HttpExceptionFilter())
   app.useGlobalInterceptors(new UndefinedInterceptor())
+
+  app.use(
+    ['/api'],
+    expressBasicAuth({
+      challenge: true,
+      users: { [process.env.SWAGGER_USER]: process.env.SWAGGER_PASSWORD },
+    }),
+  )
 
   const config = new DocumentBuilder()
     .addBearerAuth(
