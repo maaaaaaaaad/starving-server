@@ -54,7 +54,7 @@ export class UploadController {
     @User() user: UserEntity,
     @UploadedFile() image: Express.Multer.File,
   ) {
-    const path = `${process.env.HOST}:${process.env.PORT}/media/images/${image.filename}`
+    const path = `${process.env.HOST}/media/images/${image.filename}`
     return await this.authService.avatarImageUpload(user.pk, path)
   }
 
