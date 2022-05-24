@@ -13,6 +13,11 @@ async function bootstrap() {
     origin: 'http://localhost:3000',
     credentials: true,
   })
+  app.use(
+    helmet({
+      crossOriginEmbedderPolicy: false,
+    }),
+  )
   const port = process.env.PORT
   app.setGlobalPrefix('api')
   app.useGlobalFilters(new HttpExceptionFilter())
@@ -30,7 +35,6 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config)
   SwaggerModule.setup('api', app, document)
 
-  app.use(helmet())
   app.useStaticAssets(path.join(__dirname, './common', 'files'), {
     prefix: '/media',
   })
