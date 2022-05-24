@@ -17,7 +17,7 @@ const ormConfig: TypeOrmModuleOptions = {
   migrationsRun: false,
   ssl: {
     require: true,
-    rejectUnauthorized: true,
+    rejectUnauthorized: false,
   },
 }
 
