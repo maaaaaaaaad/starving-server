@@ -56,6 +56,10 @@ import { RedisModule } from './redis/redis.module'
       entities: [__dirname + '/*/entities/*.entity{.ts,.js}'],
       synchronize: true,
       logging: true,
+      ssl: {
+        require: true,
+        rejectUnauthorized: false,
+      },
     }),
     // TypeOrmModule.forRoot(ormconfig),
     AuthModule,
