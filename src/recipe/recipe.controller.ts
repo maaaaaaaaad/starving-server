@@ -36,7 +36,9 @@ import {
   RecipeSearchInputDto,
   RecipeSearchOutputDto,
 } from './dtos/recipe.search.dto'
+import { ThrottlerGuard } from '@nestjs/throttler'
 
+@UseGuards(ThrottlerGuard)
 @Controller('recipe')
 @ApiTags('recipe')
 export class RecipeController {

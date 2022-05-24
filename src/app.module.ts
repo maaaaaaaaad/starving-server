@@ -1,5 +1,5 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common'
-import { ConfigModule } from '@nestjs/config'
+import { ConfigModule, ConfigService } from '@nestjs/config'
 import * as Joi from 'joi'
 import * as ormconfig from './typeorm.config'
 import { TypeOrmModule } from '@nestjs/typeorm'
@@ -9,6 +9,7 @@ import { UploadModule } from './upload/upload.module'
 import { RecipeModule } from './recipe/recipe.module'
 import { CommentModule } from './comment/comment.module'
 import { LikeModule } from './like/like.module'
+import { ThrottlerModule } from '@nestjs/throttler'
 
 @Module({
   imports: [
@@ -29,6 +30,16 @@ import { LikeModule } from './like/like.module'
         DATABASE_PASSWORD: Joi.string().required(),
         DATABASE_NAME: Joi.string().required(),
         JWT_SECRET_KEY: Joi.string().required(),
+        THROTTLER_TTL: Joi.number().required(),
+        THROTTLER_LIMIT: Joi.number().required(),
+      }),
+    }),
+    ThrottlerModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        ttl: configService.get<number>('THROTTLER_TTL'),
+        limit: configService.get<number>('THROTTLER_LIMIT'),
       }),
     }),
     TypeOrmModule.forRoot(ormconfig),

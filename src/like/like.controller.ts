@@ -24,7 +24,9 @@ import { UserEntity } from '../auth/entities/user.entity'
 import { LikeDeleteInputDto } from './dtos/like.delete.dto'
 import { LikeListInputDto } from './dtos/like.list.dto'
 import { LikeGetOneInputDto } from './dtos/like.get.one.dto'
+import { ThrottlerGuard } from '@nestjs/throttler'
 
+@UseGuards(ThrottlerGuard)
 @Controller('like')
 @ApiTags('like')
 export class LikeController {

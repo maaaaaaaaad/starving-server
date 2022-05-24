@@ -24,7 +24,9 @@ import { User } from '../common/decorators/user.decorator'
 import { UserEntity } from './entities/user.entity'
 import { UserUpdateInputDto } from './dtos/user.update.dto'
 import { Cache } from 'cache-manager'
+import { ThrottlerGuard } from '@nestjs/throttler'
 
+@UseGuards(ThrottlerGuard)
 @Controller('auth')
 @ApiTags('auth')
 export class AuthController {

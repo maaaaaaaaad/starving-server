@@ -5,6 +5,7 @@ import { HttpExceptionFilter } from './common/exceptions/http-exception.filter'
 import { UndefinedInterceptor } from './common/interceptors/undefined.interceptor'
 import * as path from 'path'
 import { NestExpressApplication } from '@nestjs/platform-express'
+import helmet from 'helmet'
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule)
@@ -25,6 +26,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config)
   SwaggerModule.setup('api', app, document)
 
+  app.use(helmet())
   app.enableCors()
   app.useStaticAssets(path.join(__dirname, './common', 'files'), {
     prefix: '/media',
