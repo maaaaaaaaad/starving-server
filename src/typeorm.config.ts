@@ -20,10 +20,7 @@ const ormConfig: TypeOrmModuleOptions = {
   },
   migrationsRun: false,
   ...(process.env.NODE_ENV === 'production' && {
-    ssl: {
-      require: true,
-      rejectUnauthorized: false,
-    },
+    ssl: { rejectUnauthorized: false },
   }),
 }
 
