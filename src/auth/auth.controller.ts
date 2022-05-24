@@ -22,12 +22,16 @@ import { User } from '../common/decorators/user.decorator'
 import { UserEntity } from './entities/user.entity'
 import { UserUpdateInputDto } from './dtos/user.update.dto'
 import { ThrottlerGuard } from '@nestjs/throttler'
+import { RedisService } from '../redis/redis.service'
 
 @UseGuards(ThrottlerGuard)
 @Controller('auth')
 @ApiTags('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly redisService: RedisService,
+  ) {}
 
   @Post('register')
   @ApiConsumes('application/x-www-form-urlencoded')
@@ -57,7 +61,7 @@ export class AuthController {
   })
   @ApiBearerAuth('access-token')
   async profile(@User() user: UserEntity) {
-    return user
+    return await this.redisService.currentUser(user)
   }
 
   @UseGuards(JwtAuthGuard)

@@ -7,9 +7,11 @@ import { JwtModule } from '@nestjs/jwt'
 import { PassportModule } from '@nestjs/passport'
 import { JwtStrategy } from './jwt/jwt.strategy'
 import { ConfigModule, ConfigService } from '@nestjs/config'
+import { RedisModule } from '../redis/redis.module'
 
 @Module({
   imports: [
+    RedisModule,
     TypeOrmModule.forFeature([UserEntity]),
     PassportModule.register({
       session: false,
