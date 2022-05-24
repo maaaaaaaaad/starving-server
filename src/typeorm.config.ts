@@ -15,6 +15,10 @@ const ormConfig: TypeOrmModuleOptions = {
     migrationsDir: 'src/migrations',
   },
   migrationsRun: false,
+  ssl: {
+    require: true,
+    rejectUnauthorized: false,
+  },
 }
 
 export = ormConfig

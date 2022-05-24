@@ -10,7 +10,6 @@ import { RecipeModule } from './recipe/recipe.module'
 import { CommentModule } from './comment/comment.module'
 import { LikeModule } from './like/like.module'
 import { ThrottlerModule } from '@nestjs/throttler'
-import { RedisModule } from './redis/redis.module'
 
 @Global()
 @Module({
@@ -46,28 +45,27 @@ import { RedisModule } from './redis/redis.module'
         limit: configService.get<number>('THROTTLER_LIMIT'),
       }),
     }),
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: process.env.POSTGRES_HOST,
-      port: +process.env.POSTGRES_PORT,
-      username: process.env.DATABASE_USER,
-      password: process.env.DATABASE_PASSWORD,
-      database: process.env.DATABASE_NAME,
-      entities: [__dirname + '/*/entities/*.entity{.ts,.js}'],
-      synchronize: true,
-      logging: true,
-      ssl: {
-        require: true,
-        rejectUnauthorized: false,
-      },
-    }),
-    // TypeOrmModule.forRoot(ormconfig),
+    // TypeOrmModule.forRoot({
+    //   type: 'postgres',
+    //   host: process.env.POSTGRES_HOST,
+    //   port: +process.env.POSTGRES_PORT,
+    //   username: process.env.DATABASE_USER,
+    //   password: process.env.DATABASE_PASSWORD,
+    //   database: process.env.DATABASE_NAME,
+    //   entities: [__dirname + '/*/entities/*.entity{.ts,.js}'],
+    //   synchronize: true,
+    //   logging: true,
+    //   ssl: {
+    //     require: true,
+    //     rejectUnauthorized: false,
+    //   },
+    // }),
+    TypeOrmModule.forRoot(ormconfig),
     AuthModule,
     UploadModule,
     RecipeModule,
     CommentModule,
     LikeModule,
-    RedisModule,
   ],
   controllers: [],
   providers: [],
