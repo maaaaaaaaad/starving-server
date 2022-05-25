@@ -23,17 +23,19 @@ async function bootstrap() {
   app.useGlobalFilters(new HttpExceptionFilter())
   app.useGlobalInterceptors(new UndefinedInterceptor())
 
-  const config = new DocumentBuilder()
-    .addBearerAuth(
-      { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
-      'access-token',
-    )
-    .setTitle('STARVING')
-    .setDescription('STARVING API description')
-    .setVersion('1.0')
-    .build()
-  const document = SwaggerModule.createDocument(app, config)
-  SwaggerModule.setup('api', app, document)
+  if (process.env.NODE_ENV !== 'production') {
+    const config = new DocumentBuilder()
+      .addBearerAuth(
+        { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
+        'access-token',
+      )
+      .setTitle('STARVING')
+      .setDescription('STARVING API description')
+      .setVersion('1.0')
+      .build()
+    const document = SwaggerModule.createDocument(app, config)
+    SwaggerModule.setup('api', app, document)
+  }
 
   app.useStaticAssets(path.join(__dirname, './common', 'files'), {
     prefix: '/media',
