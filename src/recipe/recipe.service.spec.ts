@@ -2,16 +2,25 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { RecipeService } from './recipe.service'
 import { getRepositoryToken } from '@nestjs/typeorm'
 import { RecipeEntity } from './entities/recipe.entity'
-import { CategoryEntity, CategoryValues } from './entities/category.entity'
-import { Connection, Repository } from 'typeorm'
-import { RecipeRegisterInputDto } from './dtos/recipe.register.dto'
+import { CategoryEntity } from './entities/category.entity'
+import { Connection } from 'typeorm'
 
-class MockRecipeRepository {}
+class MockRecipeRepository {
+  private readonly data = [{ id: 1, title: 'mock recipe!' }]
+  findOne(id: number) {
+    const recipePk = id['where']['pk']
+    const recipe = this.data.find((recipe) => recipe.id === recipePk)
+    if (!recipe) {
+      return undefined
+    }
+    return recipe
+  }
+}
 class MockCategoryRepository {}
 class MockConnection {}
 
 describe('recipe service', () => {
-  let recipeService: RecipeService
+  let recipe: RecipeService
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -32,28 +41,30 @@ describe('recipe service', () => {
       ],
     }).compile()
 
-    recipeService = module.get<RecipeService>(RecipeService)
+    recipe = module.get<RecipeService>(RecipeService)
   })
 
   it('should be defined recipe service', () => {
-    expect(recipeService).toBeDefined()
+    expect(recipe).toBeDefined()
   })
 
-  describe('register', () => {
-    const owner = {
-      pk: 1,
-      email: 'mock@gmail.com',
-      password: 'abcabc123123',
-      nickname: 'mock',
-      avatarImage: null,
-      social: null,
-    }
-    const dto: RecipeRegisterInputDto = {
-      title: 'mock',
-      description: 'mock des',
-      category: CategoryValues.RICE,
-      mainText: 'mock text',
-      cookImages: ['mock1', 'mock2'],
-    }
+  describe('get one', () => {
+    it('should not found recipe', async () => {
+      await expect(recipe.getOne({ pk: 2 })).resolves.toStrictEqual({
+        access: false,
+        message: 'Not found this recipe',
+      })
+    })
+
+    it('should success found recipe', async () => {
+      await expect(recipe.getOne({ pk: 1 })).resolves.toStrictEqual({
+        access: true,
+        message: 'Success find recipe mock recipe!',
+        recipe: {
+          id: 1,
+          title: 'mock recipe!',
+        },
+      })
+    })
   })
 })
