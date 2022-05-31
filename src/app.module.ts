@@ -37,6 +37,7 @@ import { ThrottlerModule } from '@nestjs/throttler'
         REDIS_PORT: Joi.number().required(),
         SWAGGER_USER: Joi.string().required(),
         SWAGGER_PASSWORD: Joi.string().required(),
+        ORIGIN_URL: Joi.string().required(),
       }),
     }),
     ThrottlerModule.forRootAsync({
