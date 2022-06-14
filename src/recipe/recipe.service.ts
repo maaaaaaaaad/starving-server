@@ -79,24 +79,15 @@ export class RecipeService {
   }
 
   async getAll({ page, size }: RecipeGetAllInputDto) {
+    const [recipes, recipesCount] = await this.recipe
+      .createQueryBuilder('recipe')
+      .innerJoin('recipe.owner', 'owner')
+      .addSelect(['recipe', 'owner.nickname', 'owner.avatarImage'])
+      .take(size)
+      .skip((page - 1) * size)
+      .getManyAndCount()
     try {
-      const [recipes, recipesCount] = await this.recipe.findAndCount({
-        relations: ['owner'],
-        take: size,
-        skip: (page - 1) * size,
-        order: {
-          createAt: 'DESC',
-        },
-      })
-      if (recipesCount === 0) {
-        return {
-          access: false,
-          message: 'No recipes',
-        }
-      }
       return {
-        access: true,
-        message: 'Success',
         recipesCount,
         totalPages: Math.ceil(recipesCount / size),
         recipes,
