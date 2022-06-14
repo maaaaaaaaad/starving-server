@@ -1,4 +1,8 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common'
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { RecipeEntity } from './entities/recipe.entity'
 import { Connection, ILike, Repository } from 'typeorm'
@@ -98,17 +102,14 @@ export class RecipeService {
   }
 
   async getOne({ pk }: RecipeGetOneInputDto) {
+    const recipe = await this.recipe
+      .createQueryBuilder('recipe')
+      .innerJoin('recipe.owner', 'owner')
+      .where('recipe.pk = :pk', { pk })
+      .select(['recipe', 'owner.nickname', 'owner.avatarImage'])
+      .getOne()
+    if (!recipe) throw new NotFoundException('Not found recipe')
     try {
-      const recipe = await this.recipe.findOne({
-        relations: ['owner'],
-        where: { pk },
-      })
-      if (!recipe) {
-        return {
-          access: false,
-          message: 'Not found this recipe',
-        }
-      }
       return {
         access: true,
         message: `Success find recipe ${recipe.title}`,
