@@ -1,4 +1,5 @@
 import {
+  ConflictException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -120,16 +121,15 @@ export class RecipeService {
     }
   }
 
-  async getMy(owner: UserEntity, { page, size }: RecipeGetMyInputDto) {
+  async getMy({ pk }: UserEntity, { page, size }: RecipeGetMyInputDto) {
+    const [recipes, recipesCount] = await this.recipe
+      .createQueryBuilder('recipe')
+      .where('recipe.owner = :pk', { pk })
+      .take(size)
+      .skip((page - 1) * size)
+      .orderBy('recipe.createAt', 'DESC')
+      .getManyAndCount()
     try {
-      const [recipes, recipesCount] = await this.recipe.findAndCount({
-        where: { owner: { pk: owner.pk } },
-        take: size,
-        skip: (page - 1) * size,
-        order: {
-          createAt: 'DESC',
-        },
-      })
       return {
         access: true,
         message: 'Success find my recipes',
@@ -169,25 +169,22 @@ export class RecipeService {
     owner: UserEntity,
     { pk, description, mainText, cookImages }: RecipeUpdateInputDto,
   ) {
+    const recipe = await this.recipe
+      .createQueryBuilder('recipe')
+      .innerJoin('recipe.owner', 'owner')
+      .where('recipe.pk = :pk', { pk })
+      .select([
+        'owner.pk',
+        'recipe.title',
+        'recipe.description',
+        'recipe.mainText',
+        'recipe.cookImages',
+      ])
+      .getOne()
+    if (!recipe) throw new NotFoundException('Not found recipe')
+    if (recipe.owner.pk !== owner.pk)
+      throw new ConflictException('Not match owner primary key')
     try {
-      const recipe = await this.recipe.findOne({
-        where: {
-          pk,
-        },
-        relations: ['owner'],
-      })
-      if (!recipe) {
-        return {
-          access: false,
-          message: 'Not found this recipe',
-        }
-      }
-      if (recipe.owner.pk !== owner.pk) {
-        return {
-          access: false,
-          message: 'Not match owner primary key',
-        }
-      }
       if (description) {
         recipe.description = description
       }

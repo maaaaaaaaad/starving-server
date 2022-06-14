@@ -124,7 +124,7 @@ export class AuthService {
       .where('user.email = :email', { email })
       .select(['user.pk', 'user.email', 'user.password'])
       .getOne()
-    if (!user) throw new NotFoundException(`Not found ${email}`)
+    if (!user) throw new NotFoundException('Not found user')
     else if (user) {
       const confirmPassword = await user.confirmPassword(password)
       if (!confirmPassword) {
