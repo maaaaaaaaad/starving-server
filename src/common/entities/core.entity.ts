@@ -20,6 +20,6 @@ export class CoreEntity extends BaseEntity {
   @UpdateDateColumn({ name: 'UPDATE_AT' })
   updateAt: Date
 
-  @DeleteDateColumn({ name: 'DELETE_AT' })
+  @DeleteDateColumn({ name: 'DELETE_AT', select: false })
   deleteAt: Date
 }

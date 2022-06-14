@@ -82,7 +82,7 @@ export class RecipeService {
     const [recipes, recipesCount] = await this.recipe
       .createQueryBuilder('recipe')
       .innerJoin('recipe.owner', 'owner')
-      .addSelect(['recipe', 'owner.nickname', 'owner.avatarImage'])
+      .select(['recipe', 'owner.nickname', 'owner.avatarImage'])
       .take(size)
       .skip((page - 1) * size)
       .getManyAndCount()

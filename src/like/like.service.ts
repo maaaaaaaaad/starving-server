@@ -108,20 +108,16 @@ export class LikeService {
     { pk }: UserEntity,
     { page, size }: LikeListInputDto,
   ): Promise<LikeListOutputDto> {
+    const [likes, likesCount] = await this.likeEntity
+      .createQueryBuilder('like')
+      .innerJoin('like.owner', 'owner')
+      .innerJoin('like.recipe', 'recipe')
+      .where('owner.pk = :pk', { pk })
+      .select(['like.pk', 'recipe'])
+      .take(size)
+      .skip((page - 1) * size)
+      .getManyAndCount()
     try {
-      const [likes, likesCount] = await this.likeEntity.findAndCount({
-        relations: ['owner', 'recipe'],
-        where: {
-          owner: {
-            pk,
-          },
-        },
-        take: size,
-        skip: (page - 1) * size,
-        order: {
-          createAt: 'DESC',
-        },
-      })
       return {
         likes,
         totalCount: likesCount,
