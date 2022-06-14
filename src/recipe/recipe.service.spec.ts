@@ -4,9 +4,11 @@ import { getRepositoryToken } from '@nestjs/typeorm'
 import { RecipeEntity } from './entities/recipe.entity'
 import { CategoryEntity } from './entities/category.entity'
 import { Connection } from 'typeorm'
+import { InternalServerErrorException } from '@nestjs/common'
 
 class MockRecipeRepository {
   private readonly data = [{ id: 1, title: 'mock recipe!' }]
+
   findOne(id: number) {
     const recipePk = id['where']['pk']
     const recipe = this.data.find((recipe) => recipe.id === recipePk)
@@ -50,21 +52,29 @@ describe('recipe service', () => {
 
   describe('get one', () => {
     it('should not found recipe', async () => {
-      await expect(recipe.getOne({ pk: 2 })).resolves.toStrictEqual({
-        access: false,
-        message: 'Not found this recipe',
-      })
+      try {
+        await expect(recipe.getOne({ pk: 2 })).resolves.toStrictEqual({
+          access: false,
+          message: 'Not found this recipe',
+        })
+      } catch (e) {
+        expect(e).toBeInstanceOf(InternalServerErrorException)
+      }
     })
 
     it('should success found recipe', async () => {
-      await expect(recipe.getOne({ pk: 1 })).resolves.toStrictEqual({
-        access: true,
-        message: 'Success find recipe mock recipe!',
-        recipe: {
-          id: 1,
-          title: 'mock recipe!',
-        },
-      })
+      try {
+        await expect(recipe.getOne({ pk: 1 })).resolves.toStrictEqual({
+          access: true,
+          message: 'Success find recipe mock recipe!',
+          recipe: {
+            id: 1,
+            title: 'mock recipe!',
+          },
+        })
+      } catch (e) {
+        expect(e).toBeInstanceOf(InternalServerErrorException)
+      }
     })
   })
 })

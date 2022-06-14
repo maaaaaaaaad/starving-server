@@ -1,4 +1,8 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common'
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { UserEntity } from './entities/user.entity'
 import { Repository } from 'typeorm'
@@ -115,27 +119,22 @@ export class AuthService {
   }
 
   async login({ email, password }: UserLoginInputDto) {
-    try {
-      const user = await this.userEntity.findOne({
-        where: {
-          email,
-        },
-        select: ['email', 'password', 'pk'],
-      })
-      if (!user) {
+    const user = await this.userEntity
+      .createQueryBuilder('user')
+      .where('user.email = :email', { email })
+      .select(['user.pk', 'user.email', 'user.password'])
+      .getOne()
+    if (!user) throw new NotFoundException(`Not found ${email}`)
+    else if (user) {
+      const confirmPassword = await user.confirmPassword(password)
+      if (!confirmPassword) {
         return {
           access: false,
-          error: 'Not found this user',
-        }
-      } else if (user) {
-        const confirmPassword = await user.confirmPassword(password)
-        if (!confirmPassword) {
-          return {
-            access: false,
-            error: 'No match password',
-          }
+          error: 'No match password',
         }
       }
+    }
+    try {
       const payload: JwtPayloadType = {
         email: user.email,
         pk: user.pk,
