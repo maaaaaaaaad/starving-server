@@ -143,20 +143,16 @@ export class RecipeService {
   }
 
   async getByCategory({ values, page, size }: RecipeGetCategoryInputDto) {
+    const [recipes, recipesCount] = await this.recipe
+      .createQueryBuilder('recipe')
+      .innerJoin('recipe.category', 'category')
+      .innerJoin('recipe.owner', 'owner')
+      .select(['recipe', 'owner.nickname', 'owner.avatarImage'])
+      .where('category.values = :values', { values })
+      .take(size)
+      .skip((page - 1) * size)
+      .getManyAndCount()
     try {
-      const [recipes, recipesCount] = await this.recipe.findAndCount({
-        relations: ['owner', 'category'],
-        where: {
-          category: {
-            values,
-          },
-        },
-        take: size,
-        skip: (page - 1) * size,
-        order: {
-          createAt: 'DESC',
-        },
-      })
       return {
         access: true,
         message: 'Success find recipes',

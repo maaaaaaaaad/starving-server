@@ -55,9 +55,7 @@ export class RecipeEntity extends CoreEntity {
   })
   cookImages: string[]
 
-  @ManyToOne(() => CategoryEntity, (category) => category.recipes, {
-    eager: true,
-  })
+  @ManyToOne(() => CategoryEntity, (category) => category.recipes)
   category: CategoryEntity
 
   @ManyToOne(() => UserEntity, (owner) => owner.recipes, {
