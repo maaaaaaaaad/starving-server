@@ -206,27 +206,20 @@ export class RecipeService {
   }
 
   async delete(owner: UserEntity, { pk }: RecipeDeleteInputDto) {
+    const recipe = await this.recipe
+      .createQueryBuilder('recipe')
+      .where('recipe.pk = :pk', { pk })
+      .innerJoin('recipe.owner', 'owner')
+      .select(['recipe.pk', 'owner.pk'])
+      .getOne()
+    if (!recipe) throw new NotFoundException('Not found recipe')
+    if (recipe.owner.pk !== owner.pk)
+      throw new ConflictException('Not match owner primary key')
     try {
-      const recipe = await this.recipe.findOne({
-        where: { pk },
-        relations: ['owner'],
-      })
-      if (!recipe) {
-        return {
-          access: false,
-          message: 'Not found this recipe',
-        }
-      }
-      if (recipe.owner.pk !== owner.pk) {
-        return {
-          access: false,
-          message: 'Not match owner primary key',
-        }
-      }
       await this.recipe.delete(recipe.pk)
       return {
         access: true,
-        message: `Success delete recipe ${recipe.title}`,
+        message: 'Success delete recipe',
       }
     } catch (e) {
       throw new InternalServerErrorException(e.message)
