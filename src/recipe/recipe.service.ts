@@ -232,23 +232,21 @@ export class RecipeService {
     size,
   }: RecipeSearchInputDto): Promise<RecipeSearchOutputDto> {
     try {
-      const [recipes, recipesCount] = await this.recipe.findAndCount({
-        where: {
-          title: ILike(`%${keyword}%`),
-        },
-        relations: ['owner'],
-        take: size,
-        skip: (page - 1) * size,
-        order: {
-          createAt: 'DESC',
-        },
-      })
+      const [recipes, recipesCount] = await this.recipe
+        .createQueryBuilder('recipe')
+        .where('recipe.title like :keyword', { keyword: `%${keyword}%` })
+        .innerJoin('recipe.owner', 'owner')
+        .take(size)
+        .skip((page - 1) * size)
+        .orderBy('recipe.createAt', 'DESC')
+        .getManyAndCount()
       return {
         totalCount: recipesCount,
         totalPages: Math.ceil(recipesCount / size),
         recipes,
       }
     } catch (e) {
+      if (e instanceof Error) throw new Error()
       throw new InternalServerErrorException(e.message)
     }
   }
