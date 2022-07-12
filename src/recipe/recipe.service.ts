@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { RecipeEntity } from './entities/recipe.entity'
-import { Connection, ILike, Repository } from 'typeorm'
+import { Connection, Repository } from 'typeorm'
 import { RecipeRegisterInputDto } from './dtos/recipe.register.dto'
 import { CategoryEntity } from './entities/category.entity'
 import { UserEntity } from '../auth/entities/user.entity'
