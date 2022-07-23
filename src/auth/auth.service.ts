@@ -1,4 +1,5 @@
 import {
+  ConflictException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -46,15 +47,18 @@ export class AuthService {
   }: UserRegisterInputDto) {
     try {
       if (!social) {
-        const isEmail = await this.checkEmailExist(email)
-        if (!isEmail) {
+        const { email: isEmail, nickname: isNickname } = await this.userEntity
+          .createQueryBuilder('user')
+          .where('user.EMAIL = :email', { email })
+          .orWhere('user.NICKNAME = :nickname', { nickname })
+          .getOne()
+        if (isEmail === email) {
           return {
             access: false,
             message: 'This email already to exists',
           }
         }
-        const isNickname = await this.checkNicknameExist(nickname)
-        if (!isNickname) {
+        if (isNickname === nickname) {
           return {
             access: false,
             message: 'This nickname already to exists',
